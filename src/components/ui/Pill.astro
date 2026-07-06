@@ -1,0 +1,29 @@
+---
+interface Props {
+  active?: boolean;
+  class?: string;
+}
+const { active = false, class: className = '' } = Astro.props;
+---
+
+<button type="button" class:list={['pill', { 'pill--active': active }, className]}>
+  <slot />
+</button>
+
+<style>
+  .pill {
+    border: 0.5px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    padding: 0.4rem 0.9rem;
+    font-size: var(--fs-tiny);
+    background: #fff;
+    color: var(--color-text-secondary);
+    transition: all var(--transition-fast);
+  }
+  .pill:hover { border-color: var(--color-action-blue); color: var(--color-action-blue); }
+  .pill--active {
+    background: var(--color-navy);
+    color: #fff;
+    border-color: var(--color-navy);
+  }
+</style>

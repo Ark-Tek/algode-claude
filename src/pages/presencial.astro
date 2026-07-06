@@ -1,0 +1,30 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CourseCard from '../components/course/CourseCard.astro';
+
+const allCourses = await getCollection('courses');
+const filtered = allCourses.filter((c) => c.data.modality === 'presencial');
+---
+
+<BaseLayout
+  title="Cursos Presenciales — Algode Formación"
+  description="Formación práctica en instalaciones con maquinaria real. Consulta el catálogo completo de cursos presenciales de Algode Formación."
+>
+  <section class="container hub-header" data-modality="presencial">
+    <h1>Cursos Presenciales</h1>
+    <p>Formación práctica en instalaciones con maquinaria real. Carné oficial el mismo día.</p>
+  </section>
+
+  <div class="container hub-grid">
+    {filtered.map((course) => <CourseCard course={course} />)}
+  </div>
+</BaseLayout>
+
+<style>
+  .hub-header { padding: var(--space-lg) var(--container-pad) var(--space-md); border-top: 4px solid var(--modality-color); }
+  .hub-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); padding-bottom: var(--space-2xl); }
+
+  @media (max-width: 900px) { .hub-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .hub-grid { grid-template-columns: 1fr; } }
+</style>

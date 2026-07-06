@@ -1,0 +1,40 @@
+---
+export const prerender = false;
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import CourseForm from '../../../components/admin/CourseForm.astro';
+import { writeMarkdownFile, listMarkdownFiles, slugify } from '../../../lib/github-cms';
+import { parseCourseForm } from '../../../lib/course-form-parser';
+
+let message = '';
+let error = '';
+
+const instructorFiles = await listMarkdownFiles('src/content/instructors').catch(() => []);
+const instructors = instructorFiles.map((f) => ({ slug: f.slug, name: f.slug }));
+
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const { data, body, slug } = parseCourseForm(formData);
+
+    if (!slug) throw new Error('El slug es obligatorio.');
+    const finalSlug = slugify(slug);
+    const filePath = `src/content/courses/${finalSlug}.md`;
+
+    await writeMarkdownFile(filePath, data, body, `Nuevo curso: ${finalSlug}`);
+
+    return Astro.redirect(`/admin/cursos/${finalSlug}?creado=1`);
+  } catch (e) {
+    error = e instanceof Error ? e.message : 'Error desconocido al publicar.';
+  }
+}
+---
+
+<AdminLayout title="Nuevo curso">
+  <h1>Añadir curso nuevo</h1>
+
+  {error && <div class="error-banner">{error}</div>}
+
+  <div class="admin-card">
+    <CourseForm mode="new" instructors={instructors} />
+  </div>
+</AdminLayout>

@@ -1,0 +1,34 @@
+---
+// El ID real de GTM se inyecta vía variable de entorno en build time.
+// Mientras no exista una cuenta GTM configurada, este componente no
+// renderiza nada — evita mandar tráfico de desarrollo a una cuenta real.
+//
+// CUMPLIMIENTO RGPD/LSSI: GTM es una cookie no esencial (analítica), por lo
+// que NUNCA se carga automáticamente al entrar en la página. Solo se activa
+// si el usuario ha dado consentimiento explícito en CookieBanner.astro —
+// ni antes, ni por defecto, ni por seguir navegando sin elegir.
+const GTM_ID = import.meta.env.PUBLIC_GTM_ID;
+---
+
+{GTM_ID && (
+  <script
+    define:vars={{ GTM_ID }}
+    set:html={`
+      var ALGODE_GTM_ID = GTM_ID;
+      var algodeGtmLoaded = false;
+
+      function algodeLoadGTM() {
+        if (algodeGtmLoaded || !ALGODE_GTM_ID) return;
+        algodeGtmLoaded = true;
+        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer',ALGODE_GTM_ID);
+      }
+
+      // Si el usuario ya había aceptado en una visita anterior, carga GTM ahora.
+      if (localStorage.getItem('algode-cookie-consent') === 'accepted') {
+        algodeLoadGTM();
+      }
+      // Si acepta durante esta misma visita (vía el banner), carga GTM al instante.
+      window.addEventListener('algode:cookies-accepted', algodeLoadGTM);
+    `}
+  />
+)}

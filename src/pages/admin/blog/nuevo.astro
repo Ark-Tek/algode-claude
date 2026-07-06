@@ -1,0 +1,106 @@
+---
+export const prerender = false;
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { writeMarkdownFile, listMarkdownFiles, slugify } from '../../../lib/github-cms';
+
+let error = '';
+let successUrl = '';
+
+const courseFiles = await listMarkdownFiles('src/content/courses').catch(() => []);
+
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const title = String(formData.get('title') ?? '').trim();
+    const pillar = String(formData.get('pillar') ?? '').trim();
+    if (!title) throw new Error('El título es obligatorio.');
+    if (!['maquinaria', 'logistica', 'fundae'].includes(pillar)) throw new Error('Pilar no válido.');
+
+    const finalSlug = slugify(title);
+    const relatedCourseRef = String(formData.get('relatedCourseRef') ?? '').trim();
+
+    const data: Record<string, unknown> = {
+      title,
+      description: String(formData.get('description') ?? '').trim(),
+      pillar,
+      publishedDate: new Date().toISOString().slice(0, 10),
+      author: String(formData.get('author') ?? '').trim() || 'Equipo Algode',
+      heroImage: String(formData.get('heroImage') ?? '').trim() || undefined,
+      draft: false,
+    };
+    if (relatedCourseRef) data.relatedCourseRef = relatedCourseRef;
+
+    const body = String(formData.get('body') ?? '').trim();
+    const filePath = `src/content/blog/${pillar}/${finalSlug}.md`;
+
+    await writeMarkdownFile(filePath, data, body, `Nueva entrada de blog: ${finalSlug}`);
+
+    successUrl = `/blog/${finalSlug}`;
+  } catch (e) {
+    error = e instanceof Error ? e.message : 'Error desconocido al publicar.';
+  }
+}
+---
+
+<AdminLayout title="Nueva entrada de blog">
+  <h1>Publicar entrada de blog</h1>
+
+  {successUrl && (
+    <div class="success-banner">
+      Entrada publicada. Estará visible en <a href={successUrl} target="_blank">{successUrl}</a> en 1–2 minutos,
+      cuando termine el redeploy.
+    </div>
+  )}
+  {error && <div class="error-banner">{error}</div>}
+
+  <div class="admin-card">
+    <form method="POST">
+      <div class="field">
+        <label for="title">Título</label>
+        <input type="text" id="title" name="title" required />
+        <p class="field-hint">La URL se genera automáticamente a partir del título.</p>
+      </div>
+
+      <div class="field">
+        <label for="description">Descripción corta (para SEO, máx. 160 caracteres)</label>
+        <textarea id="description" name="description" rows="2" maxlength="160" required></textarea>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="pillar">Pilar de contenido</label>
+          <select id="pillar" name="pillar" required>
+            <option value="maquinaria">Maquinaria y carnés</option>
+            <option value="logistica">Logística y empleo</option>
+            <option value="fundae">FUNDAE para empresas</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="author">Autor</label>
+          <input type="text" id="author" name="author" value="Equipo Algode" />
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="heroImage">Ruta de la imagen de portada (opcional)</label>
+          <input type="text" id="heroImage" name="heroImage" placeholder="/images/blog/archivo.webp" />
+        </div>
+        <div class="field">
+          <label for="relatedCourseRef">Curso relacionado (opcional, aparece al final del post)</label>
+          <select id="relatedCourseRef" name="relatedCourseRef">
+            <option value="">— Ninguno —</option>
+            {courseFiles.map((c) => <option value={c.slug}>{c.slug}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="body">Contenido del artículo (markdown)</label>
+        <textarea id="body" name="body" rows="14" placeholder="## Primer subtítulo&#10;&#10;Texto del artículo..."></textarea>
+      </div>
+
+      <button type="submit" class="admin-btn">Publicar entrada</button>
+    </form>
+  </div>
+</AdminLayout>

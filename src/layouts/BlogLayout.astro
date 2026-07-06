@@ -1,0 +1,72 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import BreadcrumbSchema from '../components/seo/BreadcrumbSchema.astro';
+import { formatDateLong } from '../utils/format-date';
+import { getEntry } from 'astro:content';
+
+interface Props {
+  title: string;
+  description: string;
+  publishedDate: Date;
+  author: string;
+  pillar: string;
+  relatedCourseRef?: string;
+}
+const { title, description, publishedDate, author, pillar, relatedCourseRef } = Astro.props;
+
+const pillarLabels: Record<string, string> = {
+  maquinaria: 'Maquinaria y carnés',
+  logistica: 'Logística y empleo',
+  fundae: 'FUNDAE para empresas',
+};
+
+const relatedCourse = relatedCourseRef ? await getEntry('courses', relatedCourseRef) : null;
+---
+
+<BaseLayout title={title} description={description}>
+  <BreadcrumbSchema
+    items={[
+      { name: 'Inicio', url: new URL('/', Astro.site).toString() },
+      { name: 'Blog', url: new URL('/blog', Astro.site).toString() },
+      { name: title, url: Astro.url.toString() },
+    ]}
+  />
+
+  <article class="blog-post">
+    <div class="container blog-post__inner">
+      <p class="blog-post__breadcrumb">
+        <a href="/blog">Blog</a> › <span>{pillarLabels[pillar] ?? pillar}</span>
+      </p>
+      <h1>{title}</h1>
+      <p class="blog-post__meta">Por {author} · {formatDateLong(publishedDate)}</p>
+
+      <div class="blog-post__content">
+        <slot />
+      </div>
+
+      {relatedCourse && (
+        <div class="blog-post__related">
+          <p>¿Quieres dar el siguiente paso?</p>
+          <a href={`/cursos/${relatedCourse.slug}`}>Ver el curso de {relatedCourse.data.title} →</a>
+        </div>
+      )}
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .blog-post__inner { max-width: 720px; padding: var(--space-xl) var(--container-pad); }
+  .blog-post__breadcrumb { font-size: var(--fs-tiny); color: var(--color-text-tertiary); margin-bottom: var(--space-sm); }
+  .blog-post__meta { color: var(--color-text-tertiary); font-size: var(--fs-small); margin-bottom: var(--space-lg); }
+  .blog-post__content :global(h2) { margin-top: var(--space-lg); }
+  .blog-post__content :global(p) { line-height: var(--lh-relaxed); }
+
+  .blog-post__related {
+    margin-top: var(--space-2xl);
+    background: var(--color-amber-light);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    text-align: center;
+  }
+  .blog-post__related a { font-weight: 600; }
+</style>

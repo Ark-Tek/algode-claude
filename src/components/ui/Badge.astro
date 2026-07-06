@@ -1,0 +1,40 @@
+---
+interface Props {
+  modality?: 'presencial' | 'online' | 'mixta';
+  variant?: 'modality' | 'amber' | 'neutral';
+  class?: string;
+}
+const { modality, variant = 'modality', class: className = '' } = Astro.props;
+
+const labels: Record<string, string> = {
+  presencial: 'Presencial',
+  online: 'Online',
+  mixta: 'Mixta',
+};
+---
+
+{variant === 'modality' && modality ? (
+  <span class:list={['badge', className]} data-modality={modality}>
+    {labels[modality]}
+  </span>
+) : (
+  <span class:list={['badge', `badge--${variant}`, className]}>
+    <slot />
+  </span>
+)}
+
+<style>
+  .badge {
+    display: inline-block;
+    font-size: var(--fs-tiny);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-sm);
+    color: #fff;
+  }
+  [data-modality] { background: var(--modality-color); }
+  .badge--amber { background: var(--color-amber); }
+  .badge--neutral { background: var(--color-text-tertiary); }
+</style>

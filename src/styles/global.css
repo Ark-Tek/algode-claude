@@ -1,0 +1,102 @@
+/* ==========================================================================
+   ALGODE FORMACIÓN — ESTILOS GLOBALES
+   ========================================================================== */
+@import './tokens.css';
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
+  color: var(--color-text-primary);
+  background: var(--color-canvas);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: var(--lh-tight);
+  margin: 0 0 var(--space-sm);
+  color: var(--color-text-primary);
+}
+
+h1 { font-size: var(--fs-h1); }
+h2 { font-size: var(--fs-h2); }
+h3 { font-size: var(--fs-h3); }
+h4 { font-size: var(--fs-h4); font-weight: 500; }
+
+p { margin: 0 0 var(--space-md); color: var(--color-text-secondary); }
+
+a { color: var(--color-action-blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+img { max-width: 100%; display: block; }
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+ul, ol { padding-left: 1.2rem; }
+
+/* ---- Foco visible accesible — nunca eliminar ---- */
+:focus-visible {
+  outline: 2px solid var(--color-action-blue);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---- Contenedor compartido ---- */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--container-pad);
+}
+
+.section {
+  padding: var(--space-2xl) 0;
+}
+
+@media (min-width: 768px) {
+  .section { padding: var(--space-section) 0; }
+}
+
+/* ---- Botones reutilizados fuera del componente Button.astro en HTML estático ---- */
+.eyebrow {
+  font-size: var(--fs-tiny);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-action-blue);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+/* ---- Área táctil mínima accesible (WCAG 2.5.5) ---- */
+button, a.btn, input[type='checkbox'], input[type='radio'] {
+  min-height: 44px;
+}

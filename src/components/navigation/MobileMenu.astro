@@ -1,0 +1,127 @@
+---
+const modalities = [
+  { key: 'presencial', label: 'Presencial' },
+  { key: 'online', label: 'Online' },
+  { key: 'mixta', label: 'Mixta' },
+];
+const links = [
+  { href: '/cursos', label: 'Todos los cursos' },
+  { href: '/empresas', label: 'Empresas' },
+  { href: '/sobre-nosotros', label: 'Sobre nosotros' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/contacto', label: 'Contacto' },
+];
+---
+
+<div id="mobile-menu" class="mobile-menu">
+  <div class="mobile-menu__header">
+    <span class="mobile-menu__logo"><img src="/images/employers/logo.png" alt="Algode Formación" height="28" /></span>
+    <button type="button" id="mobile-menu-close" aria-label="Cerrar menú">✕</button>
+  </div>
+
+  <div class="mobile-menu__modality">
+    {modalities.map((m) => (
+      <a href={`/${m.key}`} class="mobile-menu__modality-btn" data-modality={m.key}>{m.label}</a>
+    ))}
+  </div>
+
+  <nav class="mobile-menu__links">
+    {links.map((link) => (
+      <a href={link.href}>{link.label}</a>
+    ))}
+  </nav>
+
+  <a href="/cursos" class="mobile-menu__cta">Ver todos los cursos →</a>
+</div>
+
+<script>
+  const trigger = document.getElementById('mobile-menu-trigger');
+  const closeBtn = document.getElementById('mobile-menu-close');
+  const menu = document.getElementById('mobile-menu');
+
+  function open() {
+    menu?.classList.add('is-open');
+    trigger?.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+  function close() {
+    menu?.classList.remove('is-open');
+    trigger?.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  trigger?.addEventListener('click', open);
+  closeBtn?.addEventListener('click', close);
+</script>
+
+<style>
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    background: #fff;
+    z-index: 100;
+    display: none;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .mobile-menu.is-open { display: flex; }
+
+  .mobile-menu__header {
+    background: var(--color-navy);
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem var(--container-pad);
+  }
+  .mobile-menu__logo { font-family: var(--font-display); font-weight: 700; font-size: 1.1rem; }
+  .mobile-menu__logo { background: #fff; border-radius: var(--radius-sm); padding: 0.25rem 0.6rem; display: inline-flex; }
+  .mobile-menu__logo img { display: block; }
+  .mobile-menu__header button {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+  }
+
+  .mobile-menu__modality {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem var(--container-pad);
+    background: var(--color-canvas);
+  }
+  .mobile-menu__modality-btn {
+    flex: 1;
+    text-align: center;
+    padding: 0.6rem 0.4rem;
+    border-radius: var(--radius-md);
+    font-size: var(--fs-small);
+    background: #fff;
+    border: 0.5px solid var(--color-border-strong);
+    color: var(--color-text-secondary);
+  }
+
+  .mobile-menu__links {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem var(--container-pad);
+  }
+  .mobile-menu__links a {
+    padding: 0.85rem 0.4rem;
+    color: var(--color-text-primary);
+    border-bottom: 0.5px solid var(--color-border);
+    font-size: 1rem;
+  }
+  .mobile-menu__links a:hover { text-decoration: none; color: var(--color-action-blue); }
+
+  .mobile-menu__cta {
+    margin: 1rem var(--container-pad);
+    background: var(--color-amber);
+    color: #fff;
+    text-align: center;
+    padding: 0.85rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+  }
+  .mobile-menu__cta:hover { text-decoration: none; }
+</style>

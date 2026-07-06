@@ -1,0 +1,42 @@
+---
+interface Props { certificationBody?: string }
+const { certificationBody } = Astro.props;
+---
+
+<section class="cert-preview">
+  <h2>Lo que recibes al terminar</h2>
+  <div class="cert-preview__card">
+    <div class="cert-preview__image" aria-hidden="true">🎓</div>
+    <div>
+      <h3>Certificado oficial de Algode Formación</h3>
+      {certificationBody && <p class="cert-preview__body">Reconocido por: <strong>{certificationBody}</strong></p>}
+      <p>Documento verificable, válido para presentar ante cualquier empresa o proceso de selección. Se emite en un máximo de 48 horas tras la evaluación final.</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cert-preview { padding: var(--space-2xl) 0; }
+  .cert-preview__card {
+    display: flex;
+    gap: var(--space-lg);
+    align-items: center;
+    background: linear-gradient(135deg, var(--color-amber-light), #fff);
+    border: 0.5px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+  }
+  .cert-preview__image {
+    font-size: 3rem;
+    flex-shrink: 0;
+    width: 90px;
+    height: 90px;
+    background: #fff;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+  }
+  .cert-preview__body { font-size: var(--fs-small); margin-bottom: 0.3rem; }
+</style>

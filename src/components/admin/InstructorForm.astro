@@ -1,0 +1,64 @@
+---
+interface Props {
+  mode: 'edit' | 'new';
+  slug?: string;
+  data?: Record<string, any>;
+  body?: string;
+}
+const { mode, slug = '', data = {}, body = '' } = Astro.props;
+const v = (key: string, fallback: any = '') => data[key] ?? fallback;
+---
+
+<form method="POST">
+  {mode === 'new' && (
+    <div class="field">
+      <label for="slug">Slug (parte del archivo — solo minúsculas, números y guiones)</label>
+      <input type="text" id="slug" name="slug" placeholder="ej. ana-suarez" required />
+    </div>
+  )}
+  {mode === 'edit' && <input type="hidden" name="slug" value={slug} />}
+
+  <div class="field">
+    <label for="name">Nombre completo</label>
+    <input type="text" id="name" name="name" value={v('name')} required />
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="role">Cargo / especialidad</label>
+      <input type="text" id="role" name="role" value={v('role')} required />
+    </div>
+    <div class="field">
+      <label for="company">Empresa actual</label>
+      <input type="text" id="company" name="company" value={v('company')} required />
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="yearsExperience">Años de experiencia</label>
+      <input type="number" id="yearsExperience" name="yearsExperience" value={v('yearsExperience', 5)} min="0" required />
+    </div>
+    <div class="field">
+      <label for="photo">Ruta de la foto (ej. /images/instructors/archivo.webp)</label>
+      <input type="text" id="photo" name="photo" value={v('photo')} />
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="linkedinUrl">URL de LinkedIn (opcional)</label>
+    <input type="url" id="linkedinUrl" name="linkedinUrl" value={v('linkedinUrl')} placeholder="https://www.linkedin.com/in/..." />
+  </div>
+
+  <div class="field">
+    <label for="bioShort">Bio corta (la que aparece en la card del curso)</label>
+    <textarea id="bioShort" name="bioShort" rows="2" required>{v('bioShort')}</textarea>
+  </div>
+
+  <div class="field">
+    <label for="body">Bio completa (texto libre)</label>
+    <textarea id="body" name="body" rows="4">{body}</textarea>
+  </div>
+
+  <button type="submit" class="admin-btn">{mode === 'new' ? 'Publicar instructor' : 'Guardar cambios'}</button>
+</form>

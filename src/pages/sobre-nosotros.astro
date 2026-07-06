@@ -1,0 +1,77 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EmployerLogoStrip from '../components/home/EmployerLogoStrip.astro';
+import TestimonialGrid from '../components/trust/TestimonialGrid.astro';
+import statsData from '../data/stats.json';
+---
+
+<BaseLayout
+  title="Sobre Nosotros — Algode Formación"
+  description="Conoce Algode Formación: más de 500 alumnos certificados, instructores activos en el sector y una red de más de 50 empresas colaboradoras."
+>
+  <section class="container about-hero">
+    <h1>Formamos a las personas que mueven la logística española</h1>
+    <p>
+      Algode Formación nació con un objetivo claro: que cada alumno termine su curso con una certificación
+      reconocida y una oportunidad real de empleo. Combinamos instructores activos en el sector con
+      instalaciones equipadas con maquinaria real, para que la formación se parezca lo más posible al
+      primer día de trabajo.
+    </p>
+  </section>
+
+  <EmployerLogoStrip />
+
+  <div class="container about-stats">
+    <div><p>{statsData.alumniTrained}+</p><span>Alumnos formados</span></div>
+    <div><p>{statsData.employmentRate}%</p><span>Tasa de inserción laboral</span></div>
+    <div><p>{statsData.employerPartners}+</p><span>Empresas colaboradoras</span></div>
+    <div><p>{statsData.averageRating}★</p><span>Valoración media</span></div>
+  </div>
+
+  <section class="container about-founder">
+    <img src="/images/employers/sobre-mi.jpg" alt="Fundador/a de Algode Formación" class="about-founder__photo" loading="lazy" width="160" height="160" />
+    <div>
+      <p class="eyebrow">Quién está detrás de Algode</p>
+      <h2>Una academia con vocación práctica</h2>
+      <p>
+        Algode Formación nació de la convicción de que la mejor manera de enseñar un oficio es haciéndolo —
+        no solo explicándolo. Por eso cada curso está diseñado junto a profesionales activos en el sector,
+        para que lo que se aprende en el aula se parezca lo más posible a lo que se vive en el primer día
+        de trabajo.
+      </p>
+    </div>
+  </section>
+
+  <div class="container">
+    <TestimonialGrid limit={6} />
+  </div>
+</BaseLayout>
+
+<style>
+  .about-hero { padding: var(--space-xl) var(--container-pad); max-width: 720px; }
+  .about-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-sm); padding: var(--space-lg) var(--container-pad); }
+  .about-stats > div { text-align: center; background: var(--color-canvas); border-radius: var(--radius-md); padding: var(--space-md); }
+  .about-stats p { font-size: 1.6rem; font-weight: 700; color: var(--color-navy); margin: 0; }
+  .about-stats span { font-size: var(--fs-tiny); color: var(--color-text-tertiary); }
+
+  .about-founder {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-lg);
+    align-items: center;
+    padding: var(--space-xl) var(--container-pad);
+    max-width: 800px;
+  }
+  .about-founder__photo {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 768px) {
+    .about-stats { grid-template-columns: 1fr 1fr; }
+    .about-founder { grid-template-columns: 1fr; text-align: center; justify-items: center; }
+  }
+</style>

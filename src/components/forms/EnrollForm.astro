@@ -1,0 +1,70 @@
+---
+// Formulario de matrícula. El `action` apunta a un endpoint externo
+// (Brevo / Formspree / Web3Forms) — GitHub Pages no procesa formularios.
+// Sustituir FORM_ENDPOINT por la URL real antes de publicar.
+interface Props { courseTitle: string }
+const { courseTitle } = Astro.props;
+const FORM_ENDPOINT = 'https://formspree.io/f/REPLACE_ME';
+---
+
+<div class="enroll-form" id="matricula">
+  <h2>Reserva tu plaza</h2>
+  <p class="enroll-form__course">{courseTitle}</p>
+
+  <form action={FORM_ENDPOINT} method="POST">
+    <input type="hidden" name="curso" value={courseTitle} />
+
+    <div class="enroll-form__row">
+      <label>
+        <span>Nombre y apellidos</span>
+        <input type="text" name="nombre" required />
+      </label>
+      <label>
+        <span>Teléfono</span>
+        <input type="tel" name="telefono" required />
+      </label>
+    </div>
+
+    <label>
+      <span>Email</span>
+      <input type="email" name="email" required />
+    </label>
+
+    <label class="enroll-form__checkbox">
+      <input type="checkbox" name="fundae" />
+      <span>Quiero que mi empresa bonifique este curso con créditos FUNDAE</span>
+    </label>
+
+    <button type="submit">Reservar mi plaza →</button>
+    <p class="enroll-form__privacy">🔒 Tus datos están protegidos. Te confirmamos por email en menos de 10 minutos.</p>
+  </form>
+</div>
+
+<style>
+  .enroll-form { background: var(--color-canvas); border-radius: var(--radius-lg); padding: var(--space-lg); }
+  .enroll-form__course { color: var(--color-text-tertiary); font-size: var(--fs-small); margin-bottom: var(--space-md); }
+
+  .enroll-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); }
+  label { display: block; margin-bottom: var(--space-sm); font-size: var(--fs-small); }
+  label span { display: block; margin-bottom: 0.3rem; color: var(--color-text-secondary); }
+  input[type='text'], input[type='tel'], input[type='email'] {
+    width: 100%; padding: 0.6rem 0.7rem; border-radius: var(--radius-sm);
+    border: 0.5px solid var(--color-border-strong); font-size: var(--fs-body);
+  }
+
+  .enroll-form__checkbox { display: flex; align-items: flex-start; gap: 0.5rem; }
+  .enroll-form__checkbox input { margin-top: 0.2rem; }
+
+  button[type='submit'] {
+    width: 100%;
+    background: var(--color-navy);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0.8rem;
+    font-weight: 600;
+    font-size: var(--fs-body);
+    margin-top: var(--space-sm);
+  }
+  .enroll-form__privacy { font-size: var(--fs-tiny); color: var(--color-text-tertiary); text-align: center; margin: 0.5rem 0 0; }
+</style>

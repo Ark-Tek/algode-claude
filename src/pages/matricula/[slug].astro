@@ -1,0 +1,45 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import EnrollForm from '../../components/forms/EnrollForm.astro';
+import TrustBadgeRow from '../../components/trust/TrustBadgeRow.astro';
+import { formatCurrency } from '../../utils/format-currency';
+
+export async function getStaticPaths() {
+  const courses = await getCollection('courses');
+  return courses.map((course) => ({
+    params: { slug: course.slug },
+    props: { course },
+  }));
+}
+
+const { course } = Astro.props;
+const { title, price, fundaeEligible } = course.data;
+---
+
+<BaseLayout
+  title={`Matrícula — ${title}`}
+  description={`Reserva tu plaza en ${title}. Proceso de matrícula en un solo paso.`}
+  noindex={true}
+>
+  <section class="container matricula-page">
+    <a href={`/cursos/${course.slug}`} class="matricula-page__back">← Volver a la ficha del curso</a>
+    <h1>Matrícula: {title}</h1>
+    <p class="matricula-page__price">
+      {formatCurrency(price)} {fundaeEligible && '· Bonificable al 100% con créditos FUNDAE'}
+    </p>
+
+    <EnrollForm courseTitle={title} />
+
+    <div class="matricula-page__trust">
+      <TrustBadgeRow />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .matricula-page { max-width: 640px; padding: var(--space-xl) var(--container-pad) var(--space-2xl); }
+  .matricula-page__back { font-size: var(--fs-small); display: inline-block; margin-bottom: var(--space-md); }
+  .matricula-page__price { font-weight: 500; color: var(--color-text-secondary); margin-bottom: var(--space-lg); }
+  .matricula-page__trust { margin-top: var(--space-lg); }
+</style>

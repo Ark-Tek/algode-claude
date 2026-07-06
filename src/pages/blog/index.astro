@@ -1,0 +1,50 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDate } from '../../utils/format-date';
+
+const allPosts = (await getCollection('blog')).filter((p) => !p.data.draft);
+const sorted = allPosts.sort((a, b) => b.data.publishedDate.valueOf() - a.data.publishedDate.valueOf());
+
+const pillarLabels: Record<string, string> = {
+  maquinaria: 'Maquinaria y carnés',
+  logistica: 'Logística y empleo',
+  fundae: 'FUNDAE para empresas',
+};
+---
+
+<BaseLayout
+  title="Blog — Algode Formación"
+  description="Guías y artículos sobre maquinaria, empleo en logística y bonificación FUNDAE para empresas."
+>
+  <section class="container blog-index-header">
+    <h1>Blog</h1>
+    <p>Guías prácticas sobre maquinaria, empleo en logística y formación bonificada para empresas.</p>
+  </section>
+
+  <div class="container blog-index-grid">
+    {sorted.map((post) => (
+      <a href={`/blog/${post.slug}`} class="blog-index-card">
+        <span class="blog-index-card__pillar">{pillarLabels[post.data.pillar] ?? post.data.pillar}</span>
+        <h3>{post.data.title}</h3>
+        <p>{post.data.description}</p>
+        <span class="blog-index-card__date">{formatDate(post.data.publishedDate)}</span>
+      </a>
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .blog-index-header { padding: var(--space-xl) var(--container-pad) var(--space-md); max-width: 600px; }
+  .blog-index-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); padding: 0 var(--container-pad) var(--space-2xl); }
+
+  .blog-index-card { display: block; background: #fff; border: 0.5px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-md); color: var(--color-text-primary); }
+  .blog-index-card:hover { box-shadow: var(--shadow-md); text-decoration: none; }
+  .blog-index-card__pillar { font-size: var(--fs-tiny); font-weight: 600; color: var(--color-action-blue); text-transform: uppercase; letter-spacing: 0.04em; }
+  .blog-index-card h3 { font-size: var(--fs-h4); margin: 0.4rem 0; }
+  .blog-index-card p { font-size: var(--fs-small); margin-bottom: 0.6rem; }
+  .blog-index-card__date { font-size: var(--fs-tiny); color: var(--color-text-tertiary); }
+
+  @media (max-width: 900px) { .blog-index-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .blog-index-grid { grid-template-columns: 1fr; } }
+</style>

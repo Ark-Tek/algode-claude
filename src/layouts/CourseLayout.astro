@@ -1,0 +1,100 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import CourseHero from '../components/course/CourseHero.astro';
+import CurriculumAccordion from '../components/course/CurriculumAccordion.astro';
+import InstructorBioCard from '../components/course/InstructorBioCard.astro';
+import CertificatePreview from '../components/course/CertificatePreview.astro';
+import ScheduleTable from '../components/course/ScheduleTable.astro';
+import ReviewGrid from '../components/course/ReviewGrid.astro';
+import CourseFAQ from '../components/course/CourseFAQ.astro';
+import StickyEnrollBar from '../components/course/StickyEnrollBar.astro';
+import EnrollForm from '../components/forms/EnrollForm.astro';
+import TrustBadgeRow from '../components/trust/TrustBadgeRow.astro';
+import CourseSchema from '../components/seo/CourseSchema.astro';
+import BreadcrumbSchema from '../components/seo/BreadcrumbSchema.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props { course: CollectionEntry<'courses'> }
+const { course } = Astro.props;
+const { data } = course;
+---
+
+<BaseLayout
+  title={data.seoTitle ?? data.title}
+  description={data.seoDescription ?? data.shortDescription}
+  ogImage={data.heroImage}
+>
+  <CourseSchema course={course} />
+  <BreadcrumbSchema
+    items={[
+      { name: 'Inicio', url: new URL('/', Astro.site).toString() },
+      { name: 'Cursos', url: new URL('/cursos', Astro.site).toString() },
+      { name: data.title, url: new URL(`/cursos/${course.slug}`, Astro.site).toString() },
+    ]}
+  />
+
+  <CourseHero course={course} />
+
+  <div class="container course-layout__body">
+    <div class="course-layout__main">
+      <section class="course-layout__intro">
+        <slot />
+      </section>
+
+      <section class="course-layout__outcomes">
+        <h2>Qué aprenderás</h2>
+        <ul>
+          {data.outcomes.map((o) => <li>{o}</li>)}
+        </ul>
+      </section>
+
+      {data.audienceFit.length > 0 && (
+        <section class="course-layout__audience">
+          <h2>¿Para quién es este curso?</h2>
+          <ul>
+            {data.audienceFit.map((a) => <li>{a}</li>)}
+          </ul>
+        </section>
+      )}
+
+      <CurriculumAccordion curriculum={data.curriculum} />
+      <InstructorBioCard instructorRef={data.instructorRef} />
+      <CertificatePreview certificationBody={data.certificationBody} />
+      <ReviewGrid courseSlug={course.slug} />
+      <ScheduleTable sessions={data.nextSessions} />
+      <CourseFAQ faq={data.faq} />
+
+      <div id="matricula-section" class="course-layout__enroll">
+        <EnrollForm courseTitle={data.title} />
+      </div>
+    </div>
+
+    <aside class="course-layout__sidebar">
+      <TrustBadgeRow />
+    </aside>
+  </div>
+
+  <StickyEnrollBar title={data.title} price={data.price} nextSession={data.nextSessions[0]} />
+</BaseLayout>
+
+<style>
+  .course-layout__body {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-xl);
+    padding: var(--space-xl) var(--container-pad);
+  }
+  .course-layout__main > section,
+  .course-layout__main > :global(section) { margin-bottom: var(--space-md); }
+
+  .course-layout__outcomes ul, .course-layout__audience ul { padding-left: 1.2rem; }
+  .course-layout__outcomes li, .course-layout__audience li { margin-bottom: 0.4rem; font-size: var(--fs-small); }
+
+  .course-layout__sidebar { position: sticky; top: 90px; align-self: start; }
+  .course-layout__enroll { padding-bottom: var(--space-2xl); }
+
+  @media (max-width: 900px) {
+    .course-layout__body { grid-template-columns: 1fr; padding: var(--space-lg) var(--container-pad); }
+    .course-layout__sidebar { display: none; }
+  }
+</style>

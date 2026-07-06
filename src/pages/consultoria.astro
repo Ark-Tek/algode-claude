@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
+---
+
+<BaseLayout
+  title="Consultoría para Empresas — Algode Formación"
+  description="Diseñamos planes de formación a medida para empresas: diagnóstico de necesidades, plan anual y gestión de bonificación FUNDAE."
+>
+  <section class="container consultoria-hero">
+    <h1>Consultoría de formación a medida</h1>
+    <p>
+      Diseñamos el plan formativo anual de tu empresa: detectamos las necesidades reales de cada equipo,
+      seleccionamos los cursos adecuados y gestionamos toda la bonificación FUNDAE de principio a fin.
+    </p>
+    <Button href="/empresas#contacto-empresas" variant="primary">Solicitar consultoría gratuita →</Button>
+  </section>
+</BaseLayout>
+
+<style>
+  .consultoria-hero { padding: var(--space-xl) var(--container-pad) var(--space-2xl); max-width: 640px; }
+</style>

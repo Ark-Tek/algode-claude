@@ -1,0 +1,37 @@
+---
+import FAQSchema from '../seo/FAQSchema.astro';
+
+interface FaqItem { question: string; answer: string }
+interface Props { faq: FaqItem[] }
+const { faq } = Astro.props;
+---
+
+{faq.length > 0 && (
+  <section class="course-faq">
+    <FAQSchema faq={faq} />
+    <h2>Preguntas frecuentes</h2>
+    <div class="course-faq__list">
+      {faq.map((item) => (
+        <details class="course-faq__item">
+          <summary>{item.question}</summary>
+          <p>{item.answer}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  .course-faq { padding: var(--space-2xl) 0; }
+  .course-faq__list { background: var(--color-canvas); border-radius: var(--radius-lg); overflow: hidden; }
+  .course-faq__item { border-bottom: 0.5px solid var(--color-border); padding: 0 var(--space-lg); }
+  .course-faq__item:last-child { border-bottom: none; }
+  .course-faq__item summary {
+    padding: var(--space-md) 0;
+    font-weight: 500;
+    cursor: pointer;
+    list-style: none;
+  }
+  .course-faq__item summary::-webkit-details-marker { display: none; }
+  .course-faq__item p { font-size: var(--fs-small); padding-bottom: var(--space-md); margin: 0; }
+</style>

@@ -1,0 +1,57 @@
+---
+import { getCollection } from 'astro:content';
+interface Props { limit?: number }
+const { limit = 5 } = Astro.props;
+const all = await getCollection('testimonials');
+const items = all.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, limit);
+---
+
+<section class="testimonial-grid">
+  <h2>Lo que dicen nuestros alumnos</h2>
+  <div class="testimonial-grid__list">
+    {items.map((t) => (
+      <article class="testimonial-card">
+        <div class="testimonial-card__header">
+          {t.data.photo ? (
+            <img src={t.data.photo} alt={`Foto de ${t.data.studentName}`} class="testimonial-card__photo" loading="lazy" width="36" height="36" />
+          ) : (
+            <div class="testimonial-card__avatar" aria-hidden="true">
+              {t.data.studentName.split(' ').map((n) => n[0]).slice(0, 2).join('')}
+            </div>
+          )}
+          <div>
+            <p class="testimonial-card__name">{t.data.studentName}</p>
+            <p class="testimonial-card__role">{t.data.role} · {t.data.company}</p>
+          </div>
+        </div>
+        <p class="testimonial-card__stars">{'★'.repeat(t.data.rating)}</p>
+        <p class="testimonial-card__quote">"{t.data.quote}"</p>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .testimonial-grid { padding: var(--space-2xl) 0; }
+  .testimonial-grid__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--space-md);
+  }
+  .testimonial-card { background: #fff; border: 0.5px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-md); }
+  .testimonial-card__header { display: flex; gap: 0.6rem; align-items: center; margin-bottom: 0.5rem; }
+  .testimonial-card__avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--color-teal); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: var(--fs-tiny); font-weight: 600; flex-shrink: 0;
+  }
+  .testimonial-card__photo {
+    width: 36px; height: 36px; border-radius: 50%;
+    object-fit: cover; flex-shrink: 0;
+  }
+  .testimonial-card__name { font-weight: 500; font-size: var(--fs-small); margin: 0; }
+  .testimonial-card__role { font-size: var(--fs-tiny); color: var(--color-text-tertiary); margin: 0; }
+  .testimonial-card__stars { color: #F59E0B; margin: 0 0 0.4rem; }
+  .testimonial-card__quote { font-size: var(--fs-small); font-style: italic; margin: 0; }
+</style>

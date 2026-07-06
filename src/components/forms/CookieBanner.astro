@@ -1,0 +1,123 @@
+---
+// Banner de consentimiento de cookies conforme a RGPD + LSSI, según las
+// directrices de la AEPD:
+//   - Aparece al entrar en la web, antes de instalar ninguna cookie no esencial.
+//   - "Aceptar" y "Rechazar" tienen el mismo tamaño, color y nivel de acceso
+//     (ver .cookie-banner__btn — ambos botones comparten estilo idéntico).
+//   - El consentimiento exige una acción explícita (clic); seguir navegando
+//     sin elegir NO se interpreta como aceptación.
+//   - No es un muro de cookies: el resto de la página permanece navegable
+//     y funcional aunque el usuario no haya decidido todavía.
+//   - Las cookies técnicas (necesarias para la navegación) no requieren este
+//     consentimiento y siguen funcionando siempre; solo las no esenciales
+//     (analítica vía GTM) quedan bloqueadas hasta que se acepte.
+---
+
+<div id="cookie-banner" class="cookie-banner" role="dialog" aria-live="polite" aria-label="Configuración de cookies" hidden>
+  <div class="cookie-banner__inner">
+    <div class="cookie-banner__text">
+      <p>
+        <strong>Algode Formación</strong> es responsable del tratamiento de tus datos. Usamos cookies técnicas,
+        necesarias para el funcionamiento de la web, y —solo si lo aceptas— cookies analíticas para entender cómo
+        se usa el sitio. Puedes obtener más información en nuestra
+        <a href="/legal/cookies">Política de Cookies</a>.
+      </p>
+    </div>
+    <div class="cookie-banner__actions">
+      <button type="button" id="cookie-reject" class="cookie-banner__btn">Rechazar</button>
+      <button type="button" id="cookie-accept" class="cookie-banner__btn">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'algode-cookie-consent';
+  const banner = document.getElementById('cookie-banner');
+
+  function showBanner() {
+    if (banner) banner.hidden = false;
+  }
+  function hideBanner() {
+    if (banner) banner.hidden = true;
+  }
+
+  function applyConsent(value: 'accepted' | 'rejected') {
+    localStorage.setItem(STORAGE_KEY, value);
+    hideBanner();
+    if (value === 'accepted') {
+      window.dispatchEvent(new CustomEvent('algode:cookies-accepted'));
+    }
+  }
+
+  document.getElementById('cookie-accept')?.addEventListener('click', () => applyConsent('accepted'));
+  document.getElementById('cookie-reject')?.addEventListener('click', () => applyConsent('rejected'));
+
+  // Cualquier elemento con [data-cookie-settings] reabre el banner —
+  // permite al usuario cambiar de opinión tan fácilmente como la dio.
+  document.querySelectorAll('[data-cookie-settings]').forEach((el) => {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      showBanner();
+    });
+  });
+
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (!stored) {
+    showBanner();
+  }
+</script>
+
+<style>
+  .cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-top: 0.5px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
+    z-index: 90;
+    padding: var(--space-md) var(--container-pad);
+  }
+  .cookie-banner[hidden] { display: none; }
+
+  .cookie-banner__inner {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+  .cookie-banner__text { flex: 1; min-width: 240px; }
+  .cookie-banner__text p { font-size: var(--fs-small); margin: 0; color: var(--color-text-secondary); }
+  .cookie-banner__text a { font-weight: 500; }
+
+  .cookie-banner__actions { display: flex; gap: 0.6rem; flex-shrink: 0; }
+
+  /* Mismo tamaño, mismo color, misma forma para ambos botones — ninguno
+     de los dos está diseñado para destacar más o ser más fácil de pulsar
+     que el otro, conforme a las directrices de la AEPD. */
+  .cookie-banner__btn {
+    border: 0.5px solid var(--color-navy);
+    background: var(--color-navy);
+    color: #fff;
+    border-radius: var(--radius-md);
+    padding: 0.6rem 1.3rem;
+    font-size: var(--fs-small);
+    font-weight: 600;
+    cursor: pointer;
+    min-width: 130px;
+    text-align: center;
+  }
+  .cookie-banner__btn:hover { background: var(--color-navy-light); }
+
+  @media (max-width: 640px) {
+    .cookie-banner__inner { flex-direction: column; align-items: stretch; }
+    .cookie-banner__actions { width: 100%; }
+    .cookie-banner__btn { flex: 1; }
+    /* Deja sitio para que no tape el bottom-nav móvil */
+    .cookie-banner { padding-bottom: calc(var(--space-md) + 56px); }
+  }
+</style>

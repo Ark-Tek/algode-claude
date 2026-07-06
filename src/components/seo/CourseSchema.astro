@@ -1,0 +1,11 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { buildCourseSchema } from '../../utils/schema-builders';
+
+interface Props { course: CollectionEntry<'courses'> }
+const { course } = Astro.props;
+const url = new URL(`/cursos/${course.slug}`, Astro.site).toString();
+const schema = buildCourseSchema(course, url);
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

@@ -1,0 +1,195 @@
+---
+import { getCollection } from 'astro:content';
+import { formatCurrency } from '../../utils/format-currency';
+
+const allCourses = await getCollection('courses');
+const coursesData = allCourses.map((c) => ({
+  slug: c.slug,
+  title: c.data.title,
+  modality: c.data.modality,
+  level: c.data.level,
+  durationHours: c.data.durationHours,
+  price: c.data.price,
+  fundaeEligible: c.data.fundaeEligible,
+  hasCertificate: c.data.hasCertificate,
+  rating: c.data.rating ?? null,
+}));
+---
+
+<section class="course-filter" id="buscar">
+  <div class="course-filter__search">
+    <input
+      type="search"
+      id="filter-search"
+      placeholder="Buscar por nombre o palabra clave…"
+      aria-label="Buscar curso"
+    />
+  </div>
+
+  <div class="course-filter__bar" role="group" aria-label="Filtros de curso">
+    <button type="button" class="filter-chip is-active" data-filter-mod="all">Todos</button>
+    <button type="button" class="filter-chip" data-filter-mod="presencial">🏛️ Presencial</button>
+    <button type="button" class="filter-chip" data-filter-mod="online">💻 Online</button>
+    <button type="button" class="filter-chip" data-filter-mod="mixta">🔀 Mixta</button>
+    <span class="course-filter__divider"></span>
+    <button type="button" class="filter-chip" id="filter-fundae">💶 Bonificable FUNDAE</button>
+    <span class="course-filter__count" id="filter-count">{coursesData.length} cursos</span>
+  </div>
+
+  <div class="course-filter__grid" id="filter-grid"></div>
+  <p class="course-filter__empty" id="filter-empty" hidden>No encontramos cursos con esos filtros.</p>
+</section>
+
+<script type="application/json" id="courses-data" set:html={JSON.stringify(coursesData)} />
+
+<script>
+  interface Course {
+    slug: string;
+    title: string;
+    modality: string;
+    level: string;
+    durationHours: number;
+    price: number | null;
+    fundaeEligible: boolean;
+    hasCertificate: boolean;
+    rating: number | null;
+  }
+
+  const dataEl = document.getElementById('courses-data');
+  const courses: Course[] = dataEl ? JSON.parse(dataEl.textContent || '[]') : [];
+
+  let activeModality = 'all';
+  let fundaeOnly = false;
+
+  function formatPrice(price: number | null) {
+    return price === null ? 'Consultar precio' : `${price.toLocaleString('es-ES')}€`;
+  }
+
+  function render() {
+    const search = (document.getElementById('filter-search') as HTMLInputElement)?.value.toLowerCase() ?? '';
+    const filtered = courses.filter((c) => {
+      const modOk = activeModality === 'all' || c.modality === activeModality;
+      const fundaeOk = !fundaeOnly || c.fundaeEligible;
+      const searchOk = !search || c.title.toLowerCase().includes(search);
+      return modOk && fundaeOk && searchOk;
+    });
+
+    const grid = document.getElementById('filter-grid');
+    const empty = document.getElementById('filter-empty');
+    const count = document.getElementById('filter-count');
+    if (!grid || !empty || !count) return;
+
+    count.textContent = `${filtered.length} curso${filtered.length === 1 ? '' : 's'}`;
+    empty.hidden = filtered.length > 0;
+
+    grid.innerHTML = filtered
+      .map(
+        (c) => `
+      <a href="/cursos/${c.slug}" class="course-filter__card" data-modality="${c.modality}">
+        <div class="course-filter__card-img">
+          <span class="course-filter__badge">${c.modality}</span>
+          ${c.hasCertificate ? '<span class="course-filter__badge course-filter__badge--cert">Certificado</span>' : ''}
+        </div>
+        <div class="course-filter__card-body">
+          <p class="course-filter__card-title">${c.title}</p>
+          <div class="course-filter__card-meta">
+            <span>${c.durationHours}h</span>
+            <span>${c.level}</span>
+            ${c.fundaeEligible ? '<span>FUNDAE</span>' : ''}
+          </div>
+          <div class="course-filter__card-bottom">
+            <span class="course-filter__card-price">${formatPrice(c.price)}</span>
+            ${c.rating ? `<span class="course-filter__card-rating">★ ${c.rating}</span>` : ''}
+          </div>
+        </div>
+      </a>`
+      )
+      .join('');
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('[data-filter-mod]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-filter-mod]').forEach((b) => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      activeModality = btn.dataset.filterMod ?? 'all';
+      render();
+    });
+  });
+
+  document.getElementById('filter-fundae')?.addEventListener('click', (e) => {
+    fundaeOnly = !fundaeOnly;
+    (e.currentTarget as HTMLElement).classList.toggle('is-active', fundaeOnly);
+    render();
+  });
+
+  document.getElementById('filter-search')?.addEventListener('input', render);
+
+  // Sincroniza con el ModalitySwitcher global de la navbar
+  document.addEventListener('algode:modality-change', (e: Event) => {
+    const detail = (e as CustomEvent).detail;
+    const modality = detail?.modality ?? 'all';
+    activeModality = modality;
+    document.querySelectorAll('[data-filter-mod]').forEach((b) => {
+      b.classList.toggle('is-active', (b as HTMLElement).dataset.filterMod === modality);
+    });
+    render();
+  });
+
+  render();
+</script>
+
+<style>
+  .course-filter { padding: var(--space-lg) 0; }
+
+  .course-filter__search { margin-bottom: var(--space-md); }
+  .course-filter__search input {
+    width: 100%;
+    border: 0.5px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+    padding: 0.7rem 1rem;
+    font-size: var(--fs-body);
+  }
+  .course-filter__search input:focus { border-color: var(--color-action-blue); outline: none; }
+
+  .course-filter__bar { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-bottom: var(--space-lg); }
+  .filter-chip {
+    border: 0.5px solid var(--color-border-strong);
+    border-radius: var(--radius-pill);
+    padding: 0.4rem 0.9rem;
+    font-size: var(--fs-small);
+    background: #fff;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+  }
+  .filter-chip.is-active { background: var(--color-navy); color: #fff; border-color: var(--color-navy); }
+  .course-filter__divider { width: 0.5px; height: 20px; background: var(--color-border-strong); }
+  .course-filter__count { font-size: var(--fs-small); color: var(--color-text-tertiary); margin-left: auto; }
+
+  .course-filter__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); }
+  .course-filter__empty { text-align: center; padding: var(--space-2xl) 0; color: var(--color-text-tertiary); }
+
+  .course-filter__card { display: block; background: #fff; border: 0.5px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; color: var(--color-text-primary); transition: box-shadow var(--transition-fast); }
+  .course-filter__card:hover { box-shadow: var(--shadow-md); text-decoration: none; }
+  .course-filter__card-img { height: 80px; padding: 0.5rem; display: flex; align-items: flex-end; gap: 0.3rem; }
+  .course-filter__card-img[data-modality] {}
+  .course-filter__card[data-modality='presencial'] .course-filter__card-img { background: linear-gradient(135deg, var(--color-navy), var(--color-action-blue)); }
+  .course-filter__card[data-modality='online'] .course-filter__card-img { background: linear-gradient(135deg, #004D40, var(--color-teal)); }
+  .course-filter__card[data-modality='mixta'] .course-filter__card-img { background: linear-gradient(135deg, #4A148C, var(--color-purple)); }
+  .course-filter__badge { font-size: var(--fs-tiny); font-weight: 600; text-transform: capitalize; padding: 0.15rem 0.5rem; border-radius: var(--radius-sm); background: rgba(255,255,255,0.25); color: #fff; }
+  .course-filter__badge--cert { background: var(--color-amber); }
+  .course-filter__card-body { padding: var(--space-md); }
+  .course-filter__card-title { font-weight: 600; font-size: var(--fs-small); margin: 0 0 0.4rem; }
+  .course-filter__card-meta { display: flex; gap: 0.3rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+  .course-filter__card-meta span { font-size: var(--fs-tiny); background: var(--color-canvas); color: var(--color-text-tertiary); padding: 0.1rem 0.4rem; border-radius: var(--radius-sm); }
+  .course-filter__card-bottom { display: flex; justify-content: space-between; }
+  .course-filter__card-price { font-weight: 600; }
+  .course-filter__card-rating { font-size: var(--fs-tiny); color: #B26A00; }
+
+  @media (max-width: 900px) {
+    .course-filter__grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) {
+    .course-filter__grid { grid-template-columns: 1fr; }
+    .course-filter__count { margin-left: 0; width: 100%; }
+  }
+</style>

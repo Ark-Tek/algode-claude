@@ -1,0 +1,30 @@
+---
+export const prerender = false;
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Panel">
+  <h1>Panel de mantenimiento</h1>
+  <p style="color:#44515E; margin-bottom: 1.5rem;">
+    Cada cambio que guardes aquí crea un commit real en GitHub. El sitio público se actualiza solo,
+    en 1–2 minutos, cuando Vercel termina de redesplegar — no hace falta hacer nada más.
+  </p>
+
+  <div class="admin-card">
+    <h3 style="margin-top:0;">📚 Cursos</h3>
+    <p style="font-size:0.9rem; color:#44515E;">Edita precio, fechas, plazas, currículum, instructor y certificación de cualquier curso, o publica uno nuevo.</p>
+    <a href="/admin/cursos" class="admin-btn">Gestionar cursos</a>
+  </div>
+
+  <div class="admin-card">
+    <h3 style="margin-top:0;">👤 Instructores</h3>
+    <p style="font-size:0.9rem; color:#44515E;">Edita la bio, foto y experiencia de un instructor, o añade uno nuevo.</p>
+    <a href="/admin/instructores" class="admin-btn">Gestionar instructores</a>
+  </div>
+
+  <div class="admin-card">
+    <h3 style="margin-top:0;">📝 Blog</h3>
+    <p style="font-size:0.9rem; color:#44515E;">Publica una nueva entrada en el blog, en el pilar de contenido que corresponda.</p>
+    <a href="/admin/blog/nuevo" class="admin-btn">Publicar entrada nueva</a>
+  </div>
+</AdminLayout>

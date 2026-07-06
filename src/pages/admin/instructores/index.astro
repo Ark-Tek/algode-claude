@@ -1,0 +1,34 @@
+---
+export const prerender = false;
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { listMarkdownFiles } from '../../../lib/github-cms';
+
+let instructors: { name: string; slug: string }[] = [];
+let loadError = '';
+
+try {
+  instructors = await listMarkdownFiles('src/content/instructors');
+  instructors.sort((a, b) => a.slug.localeCompare(b.slug));
+} catch (e) {
+  loadError = e instanceof Error ? e.message : 'No se pudo conectar con GitHub.';
+}
+---
+
+<AdminLayout title="Instructores">
+  <h1>Instructores</h1>
+
+  {loadError && <div class="error-banner">{loadError}</div>}
+
+  <a href="/admin/instructores/nuevo" class="admin-btn" style="margin-bottom: 1.25rem; display:inline-block;">
+    + Añadir instructor nuevo
+  </a>
+
+  <div class="admin-card">
+    {instructors.length === 0 && !loadError && <p>No se encontraron instructores.</p>}
+    {instructors.map((instructor) => (
+      <div class="admin-list-item">
+        <a href={`/admin/instructores/${instructor.slug}`}>{instructor.slug}</a>
+      </div>
+    ))}
+  </div>
+</AdminLayout>

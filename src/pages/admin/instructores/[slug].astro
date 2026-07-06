@@ -1,0 +1,56 @@
+---
+export const prerender = false;
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import InstructorForm from '../../../components/admin/InstructorForm.astro';
+import { readMarkdownFile, writeMarkdownFile } from '../../../lib/github-cms';
+
+const { slug } = Astro.params;
+const filePath = `src/content/instructors/${slug}.md`;
+
+let message = '';
+let error = '';
+let fileData: Record<string, any> = {};
+let fileBody = '';
+
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const data = {
+      name: String(formData.get('name') ?? '').trim(),
+      role: String(formData.get('role') ?? '').trim(),
+      company: String(formData.get('company') ?? '').trim(),
+      yearsExperience: Number(formData.get('yearsExperience') ?? 0),
+      photo: String(formData.get('photo') ?? '').trim() || undefined,
+      linkedinUrl: String(formData.get('linkedinUrl') ?? '').trim() || undefined,
+      bioShort: String(formData.get('bioShort') ?? '').trim(),
+    };
+    const body = String(formData.get('body') ?? '').trim();
+
+    const current = await readMarkdownFile(filePath);
+    await writeMarkdownFile(filePath, data, body, `Editar instructor: ${slug}`, current.sha);
+
+    message = 'Cambios guardados. El sitio público se actualizará en 1–2 minutos.';
+  } catch (e) {
+    error = e instanceof Error ? e.message : 'Error desconocido al guardar.';
+  }
+}
+
+try {
+  const file = await readMarkdownFile(filePath);
+  fileData = file.data;
+  fileBody = file.body.trim();
+} catch (e) {
+  error = error || (e instanceof Error ? e.message : 'No se pudo cargar el instructor.');
+}
+---
+
+<AdminLayout title={`Editar: ${slug}`}>
+  <h1>Editar instructor: {slug}</h1>
+
+  {message && <div class="success-banner">{message}</div>}
+  {error && <div class="error-banner">{error}</div>}
+
+  <div class="admin-card">
+    <InstructorForm mode="edit" slug={slug} data={fileData} body={fileBody} />
+  </div>
+</AdminLayout>

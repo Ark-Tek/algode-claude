@@ -1,0 +1,151 @@
+---
+interface Instructor { slug: string; name: string }
+interface Props {
+  mode: 'edit' | 'new';
+  slug?: string;
+  instructors: Instructor[];
+  data?: Record<string, any>;
+  body?: string;
+}
+
+const { mode, slug = '', instructors, data = {}, body = '' } = Astro.props;
+
+const v = (key: string, fallback: any = '') => data[key] ?? fallback;
+const outcomesText = Array.isArray(data.outcomes) ? data.outcomes.join('\n') : '';
+const audienceText = Array.isArray(data.audienceFit) ? data.audienceFit.join('\n') : '';
+const curriculumJson = data.curriculum ? JSON.stringify(data.curriculum, null, 2) : '[]';
+const faqJson = data.faq ? JSON.stringify(data.faq, null, 2) : '[]';
+const sessionsJson = data.nextSessions ? JSON.stringify(data.nextSessions, null, 2) : '[]';
+---
+
+<form method="POST">
+  {mode === 'new' && (
+    <div class="field">
+      <label for="slug">Slug (parte de la URL — solo minúsculas, números y guiones)</label>
+      <input type="text" id="slug" name="slug" placeholder="ej. carretilla-elevadora" required />
+    </div>
+  )}
+  {mode === 'edit' && <input type="hidden" name="slug" value={slug} />}
+
+  <div class="field">
+    <label for="title">Título del curso</label>
+    <input type="text" id="title" name="title" value={v('title')} required />
+  </div>
+
+  <div class="field">
+    <label for="shortDescription">Descripción corta (para la card y el SEO, máx. 160 caracteres)</label>
+    <textarea id="shortDescription" name="shortDescription" rows="2" maxlength="160" required>{v('shortDescription')}</textarea>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="modality">Modalidad</label>
+      <select id="modality" name="modality" required>
+        {['presencial', 'online', 'mixta'].map((m) => (
+          <option value={m} selected={v('modality') === m}>{m}</option>
+        ))}
+      </select>
+    </div>
+    <div class="field">
+      <label for="level">Nivel</label>
+      <select id="level" name="level" required>
+        {['Iniciación', 'Intermedio', 'Con experiencia', 'Todos'].map((l) => (
+          <option value={l} selected={v('level') === l}>{l}</option>
+        ))}
+      </select>
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="durationHours">Duración (horas)</label>
+      <input type="number" id="durationHours" name="durationHours" value={v('durationHours', 20)} min="1" required />
+    </div>
+    <div class="field">
+      <label for="price">Precio en euros (deja vacío para "Consultar precio")</label>
+      <input type="number" id="price" name="price" value={v('price', '')} min="0" />
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field field-check">
+      <input type="checkbox" id="fundaeEligible" name="fundaeEligible" checked={v('fundaeEligible', false)} />
+      <label for="fundaeEligible" style="margin:0;">Bonificable FUNDAE</label>
+    </div>
+    <div class="field field-check">
+      <input type="checkbox" id="hasCertificate" name="hasCertificate" checked={v('hasCertificate', true)} />
+      <label for="hasCertificate" style="margin:0;">Incluye certificado</label>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="certificationBody">Certificado a recibir (organismo o normativa que lo respalda)</label>
+    <input type="text" id="certificationBody" name="certificationBody" value={v('certificationBody')} placeholder="ej. SEPE, RD 1215/1997" />
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="instructorRef">Instructor</label>
+      <select id="instructorRef" name="instructorRef" required>
+        {instructors.map((i) => (
+          <option value={i.slug} selected={v('instructorRef') === i.slug}>{i.name || i.slug}</option>
+        ))}
+      </select>
+    </div>
+    <div class="field">
+      <label for="heroImage">Ruta de la imagen (ej. /images/courses/archivo.jpg)</label>
+      <input type="text" id="heroImage" name="heroImage" value={v('heroImage')} />
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="rating">Valoración media (0–5, opcional)</label>
+      <input type="number" id="rating" name="rating" value={v('rating', '')} min="0" max="5" step="0.1" />
+    </div>
+    <div class="field">
+      <label for="reviewCount">Número de reseñas (opcional)</label>
+      <input type="number" id="reviewCount" name="reviewCount" value={v('reviewCount', '')} min="0" />
+    </div>
+  </div>
+
+  <div class="field field-check">
+    <input type="checkbox" id="featured" name="featured" checked={v('featured', false)} />
+    <label for="featured" style="margin:0;">Destacar en "Próximas convocatorias" de la portada</label>
+  </div>
+
+  <div class="field">
+    <label for="outcomes">Qué aprenderás (una línea por punto)</label>
+    <textarea id="outcomes" name="outcomes" rows="4">{outcomesText}</textarea>
+  </div>
+
+  <div class="field">
+    <label for="audienceFit">¿Para quién es este curso? (una línea por punto)</label>
+    <textarea id="audienceFit" name="audienceFit" rows="3">{audienceText}</textarea>
+  </div>
+
+  <div class="field">
+    <label for="curriculum">Programa del curso (JSON — módulos con horas y temas)</label>
+    <textarea id="curriculum" name="curriculum" rows="8" style="font-family: monospace; font-size: 0.8rem;">{curriculumJson}</textarea>
+    <p class="field-hint">Formato: [{`{ "module": "Nombre", "hours": 5, "freePreview": true, "topics": ["tema 1", "tema 2"] }`}]</p>
+  </div>
+
+  <div class="field">
+    <label for="faq">Preguntas frecuentes (JSON)</label>
+    <textarea id="faq" name="faq" rows="6" style="font-family: monospace; font-size: 0.8rem;">{faqJson}</textarea>
+    <p class="field-hint">Formato: [{`{ "question": "...", "answer": "..." }`}]</p>
+  </div>
+
+  <div class="field">
+    <label for="nextSessions">Próximas convocatorias (JSON)</label>
+    <textarea id="nextSessions" name="nextSessions" rows="5" style="font-family: monospace; font-size: 0.8rem;">{sessionsJson}</textarea>
+    <p class="field-hint">Formato: [{`{ "date": "2026-09-08", "seatsTotal": 16, "seatsTaken": 2, "location": "Santander" }`}]. Deja [] si es online sin fecha fija.</p>
+  </div>
+
+  <div class="field">
+    <label for="body">Texto introductorio del curso (sección "Por qué este curso")</label>
+    <textarea id="body" name="body" rows="5">{body}</textarea>
+  </div>
+
+  <button type="submit" class="admin-btn">{mode === 'new' ? 'Publicar curso' : 'Guardar cambios'}</button>
+</form>

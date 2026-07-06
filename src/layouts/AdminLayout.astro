@@ -1,0 +1,88 @@
+---
+interface Props { title: string }
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} — Panel de mantenimiento</title>
+    <style>
+      * { box-sizing: border-box; }
+      body { font-family: system-ui, sans-serif; margin: 0; background: #F5F7FA; color: #15212E; }
+      .admin-nav {
+        background: #0F2D4A;
+        color: #fff;
+        padding: 0.8rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .admin-nav__brand { font-weight: 700; font-size: 1.05rem; }
+      .admin-nav__links { display: flex; gap: 1rem; align-items: center; }
+      .admin-nav__links a { color: rgba(255,255,255,0.8); font-size: 0.85rem; text-decoration: none; }
+      .admin-nav__links a:hover { color: #fff; }
+      .admin-nav__logout {
+        background: rgba(255,255,255,0.12);
+        padding: 0.35rem 0.8rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+      }
+      main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+      h1 { font-size: 1.4rem; margin: 0 0 1.5rem; }
+
+      .admin-card { background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+      .admin-list-item {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 0.75rem 0; border-bottom: 1px solid #E2E8F0;
+      }
+      .admin-list-item:last-child { border-bottom: none; }
+      .admin-list-item a { font-weight: 500; color: #1565C0; text-decoration: none; }
+      .admin-list-item a:hover { text-decoration: underline; }
+
+      .admin-btn {
+        display: inline-block;
+        background: #0F2D4A; color: #fff; border: none;
+        padding: 0.6rem 1.2rem; border-radius: 8px;
+        font-size: 0.9rem; font-weight: 600; cursor: pointer;
+        text-decoration: none;
+      }
+      .admin-btn--secondary { background: transparent; color: #1565C0; border: 1px solid #1565C0; }
+
+      .field { margin-bottom: 1rem; }
+      .field label { display: block; font-size: 0.85rem; color: #44515E; margin-bottom: 0.35rem; font-weight: 500; }
+      .field input[type='text'], .field input[type='number'], .field input[type='url'],
+      .field select, .field textarea {
+        width: 100%; padding: 0.55rem 0.75rem; border-radius: 8px;
+        border: 1px solid #CBD5E1; font-size: 0.9rem; font-family: inherit;
+      }
+      .field textarea { resize: vertical; }
+      .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+      .field-check { display: flex; align-items: center; gap: 0.5rem; }
+      .field-check input { width: auto; }
+      .field-hint { font-size: 0.78rem; color: #7C8896; margin-top: 0.3rem; }
+
+      .success-banner { background: #EAF3DE; color: #3B6D11; padding: 0.7rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.9rem; }
+      .error-banner { background: #FCEBEB; color: #A32D2D; padding: 0.7rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.9rem; }
+    </style>
+  </head>
+  <body>
+    <nav class="admin-nav">
+      <span class="admin-nav__brand">🛠️ Algode — Mantenimiento</span>
+      <div class="admin-nav__links">
+        <a href="/admin">Panel</a>
+        <a href="/admin/cursos">Cursos</a>
+        <a href="/admin/instructores">Instructores</a>
+        <a href="/admin/blog/nuevo">Blog</a>
+        <a href="/" target="_blank">Ver sitio ↗</a>
+        <a href="/api/admin/logout" class="admin-nav__logout">Salir</a>
+      </div>
+    </nav>
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>

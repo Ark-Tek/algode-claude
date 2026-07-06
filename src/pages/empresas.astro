@@ -1,0 +1,87 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FundaeCalculator from '../components/interactive/FundaeCalculator.astro';
+import ContactFormB2B from '../components/forms/ContactFormB2B.astro';
+import Button from '../components/ui/Button.astro';
+---
+
+<BaseLayout
+  title="Formación para Empresas — Algode Formación"
+  description="Forma a tu equipo en logística e industria. Tu empresa puede no pagar nada gracias a los créditos FUNDAE. Gestión completa incluida."
+>
+  <section class="b2b-hero">
+    <div class="container">
+      <p class="eyebrow" style="color: #FFD166;">🏢 Formación para empresas</p>
+      <h1>Forma a tu equipo.<br /><span>Tu empresa no paga nada.</span></h1>
+      <p class="b2b-hero__sub">
+        Utiliza los créditos FUNDAE de tu empresa para formar a tus empleados en logística, maquinaria y PRL.
+        Gestionamos toda la burocracia. Tú solo eliges el curso.
+      </p>
+      <div class="b2b-hero__ctas">
+        <Button href="#contacto-empresas" variant="primary">Solicitar propuesta para mi empresa</Button>
+        <Button href="#calculadora" variant="secondary">🧮 Calcular mi ahorro FUNDAE</Button>
+      </div>
+    </div>
+  </section>
+
+  <div class="container b2b-stats">
+    <div><p class="b2b-stats__num">50+</p><p>Empresas clientes</p></div>
+    <div><p class="b2b-stats__num">100%</p><p>Bonificable FUNDAE</p></div>
+    <div><p class="b2b-stats__num">48h</p><p>Propuesta personalizada</p></div>
+    <div><p class="b2b-stats__num">9</p><p>Cursos disponibles</p></div>
+  </div>
+
+  <div class="container" id="calculadora" style="padding-bottom: var(--space-2xl);">
+    <FundaeCalculator />
+  </div>
+
+  <div class="container b2b-values">
+    <div class="b2b-value-card">
+      <span>📋</span>
+      <h4>Gestión FUNDAE completa</h4>
+      <p>Nos encargamos de todos los trámites: alta de grupos, comunicaciones a FUNDAE y cierre de bonificación.</p>
+    </div>
+    <div class="b2b-value-card">
+      <span>🏭</span>
+      <h4>Formación in-company</h4>
+      <p>Impartimos el curso en tus instalaciones, adaptando horarios a tus turnos.</p>
+    </div>
+    <div class="b2b-value-card">
+      <span>👥</span>
+      <h4>Descuentos por grupo</h4>
+      <p>Desde 5 empleados, precio especial. Desde 10, programa a medida.</p>
+    </div>
+    <div class="b2b-value-card">
+      <span>📜</span>
+      <h4>Documentación completa</h4>
+      <p>Diplomas individuales, acta de formación y memoria del curso para tu expediente.</p>
+    </div>
+  </div>
+
+  <div class="container" id="contacto-empresas" style="padding-bottom: var(--space-2xl);">
+    <ContactFormB2B />
+  </div>
+</BaseLayout>
+
+<style>
+  .b2b-hero { background: var(--color-navy); color: #fff; padding: var(--space-2xl) 0; }
+  .b2b-hero h1 { color: #fff; margin: 0.5rem 0 var(--space-md); }
+  .b2b-hero h1 span { color: var(--color-amber); }
+  .b2b-hero__sub { color: rgba(255,255,255,0.75); max-width: 560px; margin-bottom: var(--space-lg); }
+  .b2b-hero__ctas { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+  .b2b-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-sm); padding: var(--space-lg) var(--container-pad); }
+  .b2b-stats > div { background: var(--color-canvas); border-radius: var(--radius-md); padding: var(--space-md); text-align: center; }
+  .b2b-stats__num { font-size: 1.6rem; font-weight: 700; color: var(--color-navy); margin: 0; }
+
+  .b2b-values { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); padding: 0 var(--container-pad) var(--space-2xl); }
+  .b2b-value-card { background: #fff; border: 0.5px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-md); }
+  .b2b-value-card span { font-size: 1.5rem; }
+  .b2b-value-card h4 { margin: 0.4rem 0 0.3rem; }
+  .b2b-value-card p { font-size: var(--fs-small); margin: 0; }
+
+  @media (max-width: 768px) {
+    .b2b-stats { grid-template-columns: 1fr 1fr; }
+    .b2b-values { grid-template-columns: 1fr; }
+  }
+</style>

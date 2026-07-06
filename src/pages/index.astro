@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/home/Hero.astro';
+import StatsBar from '../components/home/StatsBar.astro';
+import EmployerLogoStrip from '../components/home/EmployerLogoStrip.astro';
+import ModalityCards from '../components/home/ModalityCards.astro';
+import FeaturedCourses from '../components/home/FeaturedCourses.astro';
+import TestimonialGrid from '../components/trust/TestimonialGrid.astro';
+import TrustBadgeRow from '../components/trust/TrustBadgeRow.astro';
+---
+
+<BaseLayout
+  title="Algode Formación — Cursos certificados de logística e industria"
+  description="Academia de formación presencial y online en logística, maquinaria e industria. Certificados oficiales, bonificables FUNDAE. +500 alumnos formados."
+>
+  <Hero />
+  <EmployerLogoStrip />
+  <div class="container">
+    <TrustBadgeRow />
+  </div>
+  <ModalityCards />
+  <FeaturedCourses />
+  <StatsBar />
+  <div class="container">
+    <TestimonialGrid limit={3} />
+  </div>
+</BaseLayout>

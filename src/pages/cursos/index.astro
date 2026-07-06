@@ -1,0 +1,30 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CourseFilter from '../../components/interactive/CourseFilter.astro';
+import CourseFinderQuiz from '../../components/interactive/CourseFinderQuiz.astro';
+---
+
+<BaseLayout
+  title="Catálogo de cursos — Algode Formación"
+  description="Explora los 9 cursos certificados de Algode Formación: presencial, online y mixta. Filtra por modalidad, nivel y bonificación FUNDAE."
+>
+  <section class="container catalog-header">
+    <h1>Catálogo de cursos</h1>
+    <p>Filtra por modalidad, nivel o bonificación FUNDAE para encontrar el curso adecuado.</p>
+  </section>
+
+  <div class="container">
+    <CourseFilter />
+  </div>
+
+  <div id="quiz">
+    <div class="container">
+      <CourseFinderQuiz />
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .catalog-header { padding: var(--space-lg) var(--container-pad) 0; }
+  .catalog-header p { color: var(--color-text-secondary); }
+</style>

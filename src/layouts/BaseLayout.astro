@@ -1,0 +1,137 @@
+---
+import '../styles/global.css';
+import TopBar from '../components/navigation/TopBar.astro';
+import Navbar from '../components/navigation/Navbar.astro';
+import MobileMenu from '../components/navigation/MobileMenu.astro';
+import BottomNav from '../components/navigation/BottomNav.astro';
+import SEOHead from '../components/seo/SEOHead.astro';
+import GTMSnippet from '../components/analytics/GTMSnippet.astro';
+import WhatsAppFloat from '../components/ui/WhatsAppFloat.astro';
+import CookieBanner from '../components/forms/CookieBanner.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  noindex?: boolean;
+}
+const { title, description, ogImage, noindex } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <SEOHead title={title} description={description} ogImage={ogImage} noindex={noindex} />
+    <GTMSnippet />
+  </head>
+  <body>
+    <TopBar />
+    <Navbar />
+    <MobileMenu />
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer__grid">
+        <div>
+          <p class="site-footer__logo"><img src="/images/employers/logo.png" alt="Algode Formación" height="30" /></p>
+          <p class="site-footer__tagline">Formación certificada para logística e industria. Presencial y online.</p>
+        </div>
+        <div>
+          <h4>Cursos</h4>
+          <a href="/presencial">Presencial</a>
+          <a href="/online">Online</a>
+          <a href="/mixta">Mixta</a>
+          <a href="/cursos">Catálogo completo</a>
+        </div>
+        <div>
+          <h4>Academia</h4>
+          <a href="/sobre-nosotros">Sobre nosotros</a>
+          <a href="/empresas">Empresas</a>
+          <a href="/blog">Blog</a>
+          <a href="/contacto">Contacto</a>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <a href="/legal/aviso-legal">Aviso legal</a>
+          <a href="/legal/privacidad">Privacidad</a>
+          <a href="/legal/cookies">Cookies</a>
+          <a href="/legal/accesibilidad">Accesibilidad</a>
+        </div>
+      </div>
+      <div class="container site-footer__bottom">
+        <p>© 2026 Algode Formación. Todos los derechos reservados.</p>
+        <button type="button" data-cookie-settings class="site-footer__cookie-link">Configurar cookies</button>
+      </div>
+    </footer>
+
+    <CookieBanner />
+    <WhatsAppFloat />
+    <BottomNav />
+  </body>
+</html>
+
+<style>
+  main { min-height: 60vh; padding-bottom: 2rem; }
+
+  .site-footer {
+    background: var(--color-navy);
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: var(--space-3xl);
+  }
+  .site-footer__grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: var(--space-xl);
+    padding: var(--space-2xl) var(--container-pad) var(--space-xl);
+  }
+  .site-footer__logo {
+    background: #fff;
+    border-radius: var(--radius-sm);
+    padding: 0.3rem 0.7rem;
+    display: inline-flex;
+    margin: 0 0 0.5rem;
+  }
+  .site-footer__logo img { display: block; }
+  .site-footer__tagline { font-size: var(--fs-small); max-width: 280px; }
+  .site-footer h4 { color: #fff; font-size: var(--fs-small); margin-bottom: 0.75rem; }
+  .site-footer a {
+    display: block;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: var(--fs-small);
+    padding: 0.25rem 0;
+  }
+  .site-footer a:hover { color: #fff; text-decoration: none; }
+
+  .site-footer__bottom {
+    border-top: 0.5px solid rgba(255, 255, 255, 0.15);
+    padding: var(--space-md) var(--container-pad);
+    font-size: var(--fs-tiny);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+  }
+  .site-footer__bottom p { margin: 0; }
+  .site-footer__cookie-link {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: var(--fs-tiny);
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+  }
+  .site-footer__cookie-link:hover { color: #fff; }
+
+  @media (max-width: 768px) {
+    .site-footer__grid { grid-template-columns: 1fr 1fr; }
+    body { padding-bottom: 56px; } /* espacio para BottomNav fijo */
+  }
+</style>
