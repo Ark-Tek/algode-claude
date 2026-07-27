@@ -1,0 +1,9 @@
+---
+import { buildBreadcrumbSchema } from '../../utils/schema-builders';
+
+interface Props { items: { name: string; url: string }[] }
+const { items } = Astro.props;
+const schema = buildBreadcrumbSchema(items);
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

@@ -1,0 +1,103 @@
+---
+import ModalitySwitcher from './ModalitySwitcher.astro';
+import MegaMenu from './MegaMenu.astro';
+import Button from '../ui/Button.astro';
+---
+
+<header class="navbar">
+  <nav class="container navbar__inner" aria-label="Navegación principal">
+    <a href="/" class="navbar__logo">
+      <img src="/images/employers/logo.png" alt="Algode Formación" height="32" />
+    </a>
+
+    <ModalitySwitcher />
+
+    <div class="navbar__links">
+      <button type="button" id="cursos-trigger" class="navbar__link" aria-expanded="false" aria-controls="mega-menu">
+        Cursos <span aria-hidden="true">▾</span>
+      </button>
+      <a href="/empresas" class="navbar__link">Empresas</a>
+      <a href="/sobre-nosotros" class="navbar__link">Sobre nosotros</a>
+      <a href="/blog" class="navbar__link">Blog</a>
+    </div>
+
+    <div class="navbar__actions">
+      <Button href="/cursos" variant="secondary" size="sm" class="navbar__cta-desktop">Ver cursos →</Button>
+      <button type="button" id="mobile-menu-trigger" class="navbar__hamburger" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <MegaMenu />
+</header>
+
+<script>
+  const trigger = document.getElementById('cursos-trigger');
+  const menu = document.getElementById('mega-menu');
+
+  trigger?.addEventListener('click', () => {
+    const isOpen = menu?.classList.toggle('is-open');
+    trigger.setAttribute('aria-expanded', String(Boolean(isOpen)));
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!(e.target instanceof Node)) return;
+    if (!trigger?.contains(e.target) && !menu?.contains(e.target)) {
+      menu?.classList.remove('is-open');
+      trigger?.setAttribute('aria-expanded', 'false');
+    }
+  });
+</script>
+
+<style>
+  .navbar {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    border-bottom: 0.5px solid var(--color-border);
+    z-index: 50;
+    position: relative;
+  }
+  .navbar__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    padding: 0.7rem var(--container-pad);
+  }
+  .navbar__logo {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .navbar__logo img { height: 32px; width: auto; display: block; }
+
+  .navbar__links { display: flex; gap: 0.2rem; flex: 1; }
+  .navbar__link {
+    background: none;
+    border: none;
+    padding: 0.5rem 0.7rem;
+    font-size: var(--fs-small);
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  .navbar__link:hover { background: var(--color-canvas); color: var(--color-text-primary); }
+
+  .navbar__actions { display: flex; align-items: center; gap: 0.6rem; }
+  .navbar__hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    background: none;
+    border: none;
+    padding: 0.5rem;
+  }
+  .navbar__hamburger span { width: 22px; height: 2px; background: var(--color-navy); }
+
+  @media (max-width: 900px) {
+    .navbar__links { display: none; }
+    .navbar__cta-desktop { display: none; }
+    .navbar__hamburger { display: flex; }
+  }
+</style>

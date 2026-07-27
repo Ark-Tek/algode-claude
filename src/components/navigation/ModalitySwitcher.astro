@@ -1,0 +1,99 @@
+---
+// Pill de 3 estados que controla el contexto global de modalidad.
+//
+// Comportamiento:
+//  - En /cursos (catálogo con filtro en vivo): el clic alterna el filtro
+//    sin navegar, igual que antes — CourseFilter.astro escucha el evento
+//    `algode:modality-change`.
+//  - En cualquier otra página (home, ficha de curso, blog...): el clic
+//    navega directamente a /presencial, /online o /mixta, porque ahí no
+//    hay ningún filtro escuchando y quedarse en la misma página sin que
+//    pase nada es confuso.
+const modalities = [
+  { key: 'presencial', label: 'Presencial', icon: '🏛️' },
+  { key: 'online', label: 'Online', icon: '💻' },
+  { key: 'mixta', label: 'Mixta', icon: '🔀' },
+];
+---
+
+<div class="modality-switcher" role="group" aria-label="Filtrar por modalidad">
+  {modalities.map((m) => (
+    <button
+      type="button"
+      class="modality-switcher__btn"
+      data-modality={m.key}
+      aria-pressed="false"
+    >
+      <span aria-hidden="true">{m.icon}</span> {m.label}
+    </button>
+  ))}
+</div>
+
+<script>
+  const STORAGE_KEY = 'algode-modality';
+  const HUB_PATHS = ['presencial', 'online', 'mixta'];
+
+  const path = window.location.pathname;
+  const isOnCatalog = path === '/cursos' || path.startsWith('/cursos/');
+  const currentHub = HUB_PATHS.find((m) => path === `/${m}`) ?? null;
+
+  function setActive(modality: string | null) {
+    document.querySelectorAll<HTMLButtonElement>('.modality-switcher__btn').forEach((btn) => {
+      const isActive = btn.dataset.modality === modality;
+      btn.setAttribute('aria-pressed', String(isActive));
+      btn.classList.toggle('is-active', isActive);
+    });
+    document.dispatchEvent(new CustomEvent('algode:modality-change', { detail: { modality } }));
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('.modality-switcher__btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const modality = btn.dataset.modality ?? null;
+      if (!modality) return;
+
+      if (isOnCatalog) {
+        // Filtro en vivo: permite des-seleccionar pulsando otra vez la misma.
+        const next = btn.classList.contains('is-active') ? null : modality;
+        if (next) localStorage.setItem(STORAGE_KEY, next);
+        else localStorage.removeItem(STORAGE_KEY);
+        setActive(next);
+      } else {
+        // En el resto del sitio, navega a la página de esa modalidad.
+        localStorage.setItem(STORAGE_KEY, modality);
+        window.location.href = `/${modality}`;
+      }
+    });
+  });
+
+  // Estado visual inicial: si ya estamos en /presencial, /online o /mixta,
+  // refleja eso directamente aunque localStorage diga otra cosa.
+  setActive(currentHub ?? localStorage.getItem(STORAGE_KEY));
+</script>
+
+<style>
+  .modality-switcher {
+    display: flex;
+    background: var(--color-canvas);
+    border-radius: var(--radius-md);
+    padding: 3px;
+    gap: 2px;
+  }
+  .modality-switcher__btn {
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: var(--fs-tiny);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background var(--transition-fast), color var(--transition-fast);
+  }
+  .modality-switcher__btn[data-modality='presencial'].is-active { background: var(--modality-presencial); color: #fff; }
+  .modality-switcher__btn[data-modality='online'].is-active { background: var(--modality-online); color: #fff; }
+  .modality-switcher__btn[data-modality='mixta'].is-active { background: var(--modality-mixta); color: #fff; }
+
+  @media (max-width: 900px) {
+    .modality-switcher { display: none; }
+  }
+</style>

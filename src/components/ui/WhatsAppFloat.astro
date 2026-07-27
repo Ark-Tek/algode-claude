@@ -1,0 +1,48 @@
+---
+interface Props {
+  phone?: string;
+  message?: string;
+}
+const {
+  phone = '34900000000',
+  message = 'Hola, me interesa recibir más información sobre vuestros cursos.',
+} = Astro.props;
+
+const href = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+---
+
+<a
+  href={href}
+  class="wa-float"
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="Escribir por WhatsApp a Algode Formación"
+>
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M17.6 6.32A8.86 8.86 0 0 0 12.05 4a8.94 8.94 0 0 0-7.74 13.4L3 21l3.71-1.27a8.93 8.93 0 0 0 5.34 1.71h.01a8.94 8.94 0 0 0 8.93-8.94 8.86 8.86 0 0 0-2.39-6.18ZM12.06 19.9h-.01a7.42 7.42 0 0 1-3.78-1.04l-.27-.16-2.81.96.94-2.74-.18-.28a7.43 7.43 0 0 1-1.14-3.96 7.46 7.46 0 0 1 12.74-5.27 7.4 7.4 0 0 1 2.18 5.27 7.46 7.46 0 0 1-7.46 7.22Zm4.08-5.59c-.22-.11-1.31-.65-1.51-.72-.2-.07-.35-.11-.5.11-.15.22-.57.72-.7.86-.13.15-.26.16-.48.05-.65-.27-1.27-.65-1.83-1.13a6.6 6.6 0 0 1-1.21-1.5c-.13-.22 0-.34.1-.46.13-.13.26-.3.39-.45a.5.5 0 0 0 .07-.5c-.04-.11-.5-1.2-.69-1.65-.18-.43-.37-.37-.5-.38-.13 0-.28-.01-.43-.01a.83.83 0 0 0-.6.28c-.2.22-.78.76-.78 1.85s.8 2.15.91 2.3c.11.15 1.55 2.37 3.76 3.23 1.86.74 2.24.6 2.65.56.4-.04 1.31-.53 1.5-1.05.18-.51.18-.94.13-1.04-.05-.1-.18-.16-.4-.27Z"/>
+  </svg>
+</a>
+
+<style>
+  .wa-float {
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #25D366;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-lg);
+    z-index: 60;
+    transition: transform var(--transition-fast);
+  }
+  .wa-float:hover { transform: scale(1.06); }
+
+  @media (max-width: 640px) {
+    .wa-float { bottom: 4.75rem; right: 1rem; width: 50px; height: 50px; }
+  }
+</style>

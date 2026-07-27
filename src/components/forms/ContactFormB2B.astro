@@ -1,0 +1,48 @@
+---
+const FORM_ENDPOINT = 'https://formspree.io/f/REPLACE_ME_B2B';
+---
+
+<div class="contact-b2b">
+  <h3>Solicita una propuesta sin compromiso</h3>
+  <p>Te respondemos en menos de 48 horas con un presupuesto detallado y el crédito FUNDAE disponible para tu empresa.</p>
+
+  <form action={FORM_ENDPOINT} method="POST">
+    <div class="contact-b2b__row">
+      <input type="text" name="nombre" placeholder="Nombre y apellidos" required />
+      <input type="text" name="empresa" placeholder="Empresa" required />
+    </div>
+    <div class="contact-b2b__row">
+      <input type="email" name="email" placeholder="Email corporativo" required />
+      <input type="tel" name="telefono" placeholder="Teléfono" required />
+    </div>
+    <select name="curso_interes">
+      <option value="">¿Qué curso te interesa?</option>
+      <option>Carretilla elevadora (grupo)</option>
+      <option>Preparación de pedidos</option>
+      <option>Sensibilización medioambiental</option>
+      <option>Operaciones de almacenaje</option>
+      <option>Varios cursos / plan anual</option>
+    </select>
+    <button type="submit">Solicitar propuesta gratuita →</button>
+    <p class="contact-b2b__privacy">🔒 Tus datos están protegidos. Sin spam. Sin cesión a terceros.</p>
+  </form>
+</div>
+
+<style>
+  .contact-b2b { background: var(--color-canvas); border-radius: var(--radius-lg); padding: var(--space-lg); }
+  .contact-b2b h3 { margin-bottom: 0.3rem; }
+  .contact-b2b p { font-size: var(--fs-small); margin-bottom: var(--space-md); }
+
+  .contact-b2b__row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); margin-bottom: var(--space-sm); }
+  .contact-b2b input, .contact-b2b select {
+    width: 100%; padding: 0.6rem 0.7rem; border-radius: var(--radius-sm);
+    border: 0.5px solid var(--color-border-strong); font-size: var(--fs-small);
+  }
+  .contact-b2b select { margin-bottom: var(--space-sm); }
+
+  .contact-b2b button {
+    width: 100%; background: var(--color-navy); color: #fff; border: none;
+    border-radius: var(--radius-md); padding: 0.8rem; font-weight: 600; font-size: var(--fs-body);
+  }
+  .contact-b2b__privacy { font-size: var(--fs-tiny); color: var(--color-text-tertiary); text-align: center; margin: 0.5rem 0 0; }
+</style>

@@ -1,0 +1,44 @@
+---
+export const prerender = false;
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import InstructorForm from '../../../components/admin/InstructorForm.astro';
+import { readMarkdownFile, writeMarkdownFile } from '../../../lib/github-cms';
+
+const { slug } = Astro.params;
+const filePath = `src/content/instructors/${slug}.md`;
+let message = '', error = '';
+let fileData: Record<string, any> = {}, fileBody = '';
+
+if (Astro.request.method === 'POST') {
+  try {
+    const fd = await Astro.request.formData();
+    const data = {
+      name: String(fd.get('name') ?? '').trim(),
+      role: String(fd.get('role') ?? '').trim(),
+      company: String(fd.get('company') ?? '').trim(),
+      yearsExperience: Number(fd.get('yearsExperience') ?? 0),
+      photo: String(fd.get('photo') ?? '').trim() || undefined,
+      linkedinUrl: String(fd.get('linkedinUrl') ?? '').trim() || undefined,
+      bioShort: String(fd.get('bioShort') ?? '').trim(),
+    };
+    const body = String(fd.get('body') ?? '').trim();
+    const current = await readMarkdownFile(filePath);
+    await writeMarkdownFile(filePath, data, body, `Editar instructor: ${slug}`, current.sha);
+    message = 'Cambios guardados. El sitio se actualizará en 1–2 minutos.';
+  } catch (e) { error = e instanceof Error ? e.message : 'Error al guardar.'; }
+}
+try {
+  const file = await readMarkdownFile(filePath);
+  fileData = file.data; fileBody = file.body.trim();
+} catch (e) { error = error || (e instanceof Error ? e.message : 'No se pudo cargar.'); }
+---
+
+<AdminLayout title={`Editar: ${slug}`}>
+  <h1>Editar instructor</h1>
+  <p class="admin-subtitle">{slug}</p>
+  {message && <div class="alert alert--success"><span class="alert-icon">✅</span><div>{message}</div></div>}
+  {error && <div class="alert alert--error"><span class="alert-icon">⚠️</span><div>{error}</div></div>}
+  <form method="POST">
+    <InstructorForm mode="edit" slug={slug} data={fileData} body={fileBody} />
+  </form>
+</AdminLayout>

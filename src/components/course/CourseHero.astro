@@ -1,0 +1,100 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Badge from '../ui/Badge.astro';
+import Button from '../ui/Button.astro';
+import { formatCurrency } from '../../utils/format-currency';
+import { formatDate } from '../../utils/format-date';
+import { getSeatsStatus, getSeatsStatusLabel, getSeatsRemaining } from '../../utils/seats-status';
+
+interface Props { course: CollectionEntry<'courses'> }
+const { course } = Astro.props;
+const { title, shortDescription, modality, price, fundaeEligible, hasCertificate, nextSessions, rating, reviewCount, heroImage } = course.data;
+const nextSession = nextSessions[0];
+const status = nextSession ? getSeatsStatus(nextSession) : null;
+---
+
+<section class="course-hero" data-modality={modality}>
+  {heroImage && <img src={heroImage} alt="" class="course-hero__bg" loading="eager" />}
+  <div class="container course-hero__inner">
+    <div class="course-hero__breadcrumb">
+      <a href="/">Inicio</a> › <a href="/cursos">Cursos</a> › <span>{title}</span>
+    </div>
+
+    <div class="course-hero__badges">
+      <Badge modality={modality} />
+      {hasCertificate && <Badge variant="amber">Certificado oficial</Badge>}
+      {fundaeEligible && <Badge variant="neutral">Bonificable FUNDAE</Badge>}
+    </div>
+
+    <h1>{title}</h1>
+    <p class="course-hero__desc">{shortDescription}</p>
+
+    {rating && (
+      <p class="course-hero__rating">★★★★★ <strong>{rating}</strong> · {reviewCount} reseñas verificadas</p>
+    )}
+
+    {nextSession && status && (
+      <div class="course-hero__urgency" data-status={status}>
+        {getSeatsStatusLabel(status, getSeatsRemaining(nextSession))} — próxima convocatoria: {formatDate(nextSession.date)}
+      </div>
+    )}
+
+    <div class="course-hero__price-row">
+      <span class="course-hero__price">{formatCurrency(price)}</span>
+      {price !== null && <span class="course-hero__price-note">IVA incluido {fundaeEligible && '· Bonificable FUNDAE'}</span>}
+    </div>
+
+    <div class="course-hero__ctas">
+      <Button href="#matricula" variant="primary">Reservar mi plaza →</Button>
+      <Button href={`https://wa.me/34900000000?text=${encodeURIComponent(`Hola, me interesa el curso de ${title}`)}`} variant="secondary">
+        Preguntar por WhatsApp
+      </Button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .course-hero {
+    position: relative;
+    background: linear-gradient(135deg, var(--color-navy), color-mix(in srgb, var(--modality-color, var(--color-action-blue)) 60%, var(--color-navy)));
+    color: #fff;
+    padding: var(--space-xl) 0 var(--space-2xl);
+    overflow: hidden;
+  }
+  .course-hero__bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    opacity: 0.35;
+  }
+  .course-hero__inner { position: relative; z-index: 1; }
+  .course-hero__breadcrumb { font-size: var(--fs-tiny); opacity: 0.65; margin-bottom: var(--space-md); }
+  .course-hero__breadcrumb a { color: #fff; }
+
+  .course-hero__badges { display: flex; gap: 0.4rem; margin-bottom: var(--space-sm); flex-wrap: wrap; }
+
+  .course-hero h1 { color: #fff; margin-bottom: var(--space-sm); max-width: 700px; }
+  .course-hero__desc { color: rgba(255,255,255,0.85); max-width: 600px; font-size: 1.05rem; }
+
+  .course-hero__rating { font-size: var(--fs-small); color: #FFD166; margin-bottom: var(--space-sm); }
+  .course-hero__rating strong { color: #fff; }
+
+  .course-hero__urgency {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border-radius: var(--radius-md);
+    padding: 0.6rem 1rem;
+    font-size: var(--fs-small);
+    margin-bottom: var(--space-lg);
+  }
+  .course-hero__urgency[data-status='pocas-plazas'] { background: rgba(230, 81, 0, 0.35); }
+
+  .course-hero__price-row { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: var(--space-lg); }
+  .course-hero__price { font-size: 2rem; font-weight: 700; }
+  .course-hero__price-note { font-size: var(--fs-tiny); opacity: 0.7; }
+
+  .course-hero__ctas { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+</style>

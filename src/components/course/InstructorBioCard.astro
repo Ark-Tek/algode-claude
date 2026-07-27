@@ -1,0 +1,70 @@
+---
+import { getEntry } from 'astro:content';
+
+interface Props { instructorRef: string }
+const { instructorRef } = Astro.props;
+const instructor = await getEntry('instructors', instructorRef);
+---
+
+{instructor && (
+  <section class="instructor-card">
+    <h2>Tu instructor</h2>
+    <div class="instructor-card__inner">
+      {instructor.data.photo ? (
+        <img src={instructor.data.photo} alt={`Foto de ${instructor.data.name}`} class="instructor-card__photo" loading="lazy" width="64" height="64" />
+      ) : (
+        <div class="instructor-card__avatar" aria-hidden="true">
+          {instructor.data.name.split(' ').map((n) => n[0]).slice(0, 2).join('')}
+        </div>
+      )}
+      <div>
+        <h3>{instructor.data.name}</h3>
+        <p class="instructor-card__role">{instructor.data.role} · {instructor.data.company}</p>
+        <p class="instructor-card__years">{instructor.data.yearsExperience} años de experiencia en el sector</p>
+        <p class="instructor-card__bio">{instructor.data.bioShort}</p>
+        {instructor.data.linkedinUrl && (
+          <a href={instructor.data.linkedinUrl} target="_blank" rel="noopener noreferrer" class="instructor-card__linkedin">
+            Ver perfil de LinkedIn →
+          </a>
+        )}
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .instructor-card { padding: var(--space-2xl) 0; }
+  .instructor-card__inner {
+    display: flex;
+    gap: var(--space-lg);
+    background: var(--color-canvas);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    align-items: flex-start;
+  }
+  .instructor-card__avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--color-action-blue);
+    color: #fff;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+  .instructor-card__photo {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .instructor-card__inner h3 { margin-bottom: 0.2rem; }
+  .instructor-card__role { font-size: var(--fs-small); color: var(--color-text-secondary); margin-bottom: 0.2rem; }
+  .instructor-card__years { font-size: var(--fs-tiny); color: var(--color-text-tertiary); margin-bottom: 0.6rem; }
+  .instructor-card__bio { font-size: var(--fs-small); margin-bottom: 0.4rem; }
+  .instructor-card__linkedin { font-size: var(--fs-small); font-weight: 500; }
+</style>

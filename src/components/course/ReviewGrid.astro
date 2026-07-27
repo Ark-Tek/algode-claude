@@ -1,0 +1,67 @@
+---
+import { getCollection } from 'astro:content';
+
+interface Props { courseSlug: string; limit?: number }
+const { courseSlug, limit = 3 } = Astro.props;
+
+const allTestimonials = await getCollection('testimonials');
+const relevant = allTestimonials
+  .filter((t) => t.data.courseRef === courseSlug)
+  .slice(0, limit);
+---
+
+{relevant.length > 0 && (
+  <section class="review-grid">
+    <h2>Lo que dicen nuestros alumnos</h2>
+    <div class="review-grid__list">
+      {relevant.map((t) => (
+        <article class="review-card">
+          <div class="review-card__header">
+            {t.data.photo ? (
+              <img src={t.data.photo} alt={`Foto de ${t.data.studentName}`} class="review-card__photo" loading="lazy" width="36" height="36" />
+            ) : (
+              <div class="review-card__avatar" aria-hidden="true">
+                {t.data.studentName.split(' ').map((n) => n[0]).slice(0, 2).join('')}
+              </div>
+            )}
+            <div>
+              <p class="review-card__name">{t.data.studentName}</p>
+              <p class="review-card__role">{t.data.role} · {t.data.company}</p>
+            </div>
+          </div>
+          <p class="review-card__stars">{'★'.repeat(t.data.rating)}{'☆'.repeat(5 - t.data.rating)}</p>
+          <p class="review-card__quote">"{t.data.quote}"</p>
+          {t.data.verified && <span class="review-card__verified">✓ Verificado</span>}
+        </article>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  .review-grid { padding: var(--space-2xl) 0; }
+  .review-grid__list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-md); }
+
+  .review-card {
+    background: #fff;
+    border: 0.5px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+  }
+  .review-card__header { display: flex; gap: 0.6rem; align-items: center; margin-bottom: 0.5rem; }
+  .review-card__avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--color-action-blue); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: var(--fs-tiny); font-weight: 600; flex-shrink: 0;
+  }
+  .review-card__photo {
+    width: 36px; height: 36px; border-radius: 50%;
+    object-fit: cover; flex-shrink: 0;
+  }
+  .review-card__name { font-weight: 500; font-size: var(--fs-small); margin: 0; }
+  .review-card__role { font-size: var(--fs-tiny); color: var(--color-text-tertiary); margin: 0; }
+  .review-card__stars { color: #F59E0B; margin: 0 0 0.4rem; font-size: var(--fs-small); }
+  .review-card__quote { font-size: var(--fs-small); font-style: italic; margin-bottom: 0.4rem; }
+  .review-card__verified { font-size: var(--fs-tiny); color: var(--color-teal); font-weight: 500; }
+</style>

@@ -1,0 +1,31 @@
+---
+const badges = [
+  { icon: '🏛️', title: 'Certificado oficial', sub: 'Reconocido SEPE' },
+  { icon: '💶', title: 'Bonificable FUNDAE', sub: 'Para empresas' },
+  { icon: '🔒', title: 'Pago seguro', sub: 'Cifrado SSL' },
+  { icon: '🔄', title: 'Cambio de fecha', sub: 'Sin coste extra' },
+  { icon: '💼', title: 'Bolsa de empleo', sub: 'Acceso incluido' },
+];
+---
+
+<div class="trust-row">
+  {badges.map((b) => (
+    <div class="trust-row__item">
+      <span class="trust-row__icon" aria-hidden="true">{b.icon}</span>
+      <p class="trust-row__title">{b.title}</p>
+      <p class="trust-row__sub">{b.sub}</p>
+    </div>
+  ))}
+</div>
+
+<style>
+  .trust-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: var(--space-sm); }
+  .trust-row__item { background: #fff; border: 0.5px solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-md); text-align: center; }
+  .trust-row__icon { font-size: 1.4rem; display: block; margin-bottom: 0.4rem; }
+  .trust-row__title { font-size: var(--fs-small); font-weight: 500; margin: 0; }
+  .trust-row__sub { font-size: var(--fs-tiny); color: var(--color-text-tertiary); margin: 0; }
+
+  @media (max-width: 768px) {
+    .trust-row { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>

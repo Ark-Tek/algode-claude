@@ -1,0 +1,29 @@
+---
+import statsData from '../../data/stats.json';
+const items = [
+  { num: `${statsData.alumniTrained}+`, label: 'Alumnos formados' },
+  { num: statsData.coursesAvailable, label: 'Cursos certificados' },
+  { num: `${statsData.averageRating}★`, label: 'Valoración media' },
+  { num: `${statsData.employmentRate}%`, label: 'Tasa de inserción' },
+];
+---
+
+<div class="stats-bar">
+  <div class="container stats-bar__grid">
+    {items.map((item) => (
+      <div class="stats-bar__item">
+        <p class="stats-bar__num">{item.num}</p>
+        <p class="stats-bar__label">{item.label}</p>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .stats-bar { background: var(--color-navy); }
+  .stats-bar__grid { display: grid; grid-template-columns: repeat(4, 1fr); padding: var(--space-lg) var(--container-pad); }
+  .stats-bar__item { text-align: center; border-right: 0.5px solid rgba(255,255,255,0.12); }
+  .stats-bar__item:last-child { border-right: none; }
+  .stats-bar__num { font-size: 1.7rem; font-weight: 700; color: #fff; margin: 0; }
+  .stats-bar__label { font-size: var(--fs-tiny); color: rgba(255,255,255,0.6); margin: 0.2rem 0 0; }
+</style>

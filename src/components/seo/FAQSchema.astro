@@ -1,0 +1,9 @@
+---
+import { buildFaqSchema } from '../../utils/schema-builders';
+
+interface Props { faq: { question: string; answer: string }[] }
+const { faq } = Astro.props;
+const schema = buildFaqSchema(faq);
+---
+
+{faq.length > 0 && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}

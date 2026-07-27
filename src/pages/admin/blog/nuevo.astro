@@ -1,0 +1,178 @@
+---
+export const prerender = false;
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { writeMarkdownFile, listMarkdownFiles, slugify } from '../../../lib/github-cms';
+
+let error = '';
+let successUrl = '';
+
+const courseFiles = await listMarkdownFiles('src/content/courses').catch(() => []);
+
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const title  = String(formData.get('title')  ?? '').trim();
+    const pillar = String(formData.get('pillar') ?? '').trim();
+    if (!title)  throw new Error('El título es obligatorio.');
+    if (!['maquinaria', 'logistica', 'fundae'].includes(pillar)) throw new Error('Pilar no válido.');
+
+    const finalSlug         = slugify(title);
+    const relatedCourseRef  = String(formData.get('relatedCourseRef') ?? '').trim();
+
+    const data: Record<string, unknown> = {
+      title,
+      description:   String(formData.get('description') ?? '').trim(),
+      pillar,
+      publishedDate: new Date().toISOString().slice(0, 10),
+      author:        String(formData.get('author') ?? '').trim() || 'Equipo Algode',
+      heroImage:     String(formData.get('heroImage') ?? '').trim() || undefined,
+      draft: false,
+    };
+    if (relatedCourseRef) data.relatedCourseRef = relatedCourseRef;
+
+    const body     = String(formData.get('body') ?? '').trim();
+    const filePath = `src/content/blog/${pillar}/${finalSlug}.md`;
+
+    await writeMarkdownFile(filePath, data, body, `Nueva entrada de blog: ${finalSlug}`);
+    successUrl = `/blog/${finalSlug}`;
+  } catch (e) {
+    error = e instanceof Error ? e.message : 'Error desconocido al publicar.';
+  }
+}
+---
+
+<AdminLayout title="Nueva entrada de blog">
+  <h1>Publicar entrada de blog</h1>
+  <p class="admin-subtitle">El artículo se publicará en la sección de blog y se indexará en Google.</p>
+
+  {successUrl && (
+    <div class="alert alert--success">
+      <span class="alert-icon">✅</span>
+      <div>Entrada publicada. Estará visible en <a href={successUrl} target="_blank">{successUrl}</a> en 1–2 minutos, cuando termine el redeploy.</div>
+    </div>
+  )}
+  {error && (
+    <div class="alert alert--error">
+      <span class="alert-icon">⚠️</span> {error}
+    </div>
+  )}
+
+  <form method="POST">
+    <!-- ── Datos del artículo ── -->
+    <div class="admin-card">
+      <div class="section-header">
+        <div class="section-header__icon">📰</div>
+        <div>
+          <h2>Datos del artículo</h2>
+          <p>Título, categoría y descripción para Google</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="title">Título del artículo</label>
+        <input type="text" id="title" name="title" required
+               placeholder="ej. Cómo conseguir el carné de carretilla elevadora en España"
+               oninput="previewUrl(this.value)" />
+        <div class="url-preview">URL: algodeformacion.es/blog/<span id="blog-url-preview">—</span></div>
+      </div>
+
+      <div class="field">
+        <label for="description">Descripción corta <span style="font-weight:400;color:var(--text-ter)">(para Google y redes sociales — máx. 160 caracteres)</span></label>
+        <textarea id="description" name="description" rows="2" maxlength="160" required
+                  placeholder="ej. Guía completa de requisitos, duración y validez legal del carné de operador de carretilla elevadora."></textarea>
+      </div>
+
+      <div class="field">
+        <label>Categoría del artículo</label>
+        <p class="field-hint" style="margin-bottom:.5rem;">Elige la categoría más adecuada — determina en qué sección del blog aparecerá.</p>
+        <div class="modality-grid">
+          <label class="modality-card" data-m="presencial">
+            <input type="radio" name="pillar" value="maquinaria" required checked />
+            <span class="modality-card__icon">🏗️</span>
+            <span class="modality-card__label">Maquinaria y carnés</span>
+          </label>
+          <label class="modality-card" data-m="online">
+            <input type="radio" name="pillar" value="logistica" />
+            <span class="modality-card__icon">📦</span>
+            <span class="modality-card__label">Logística y empleo</span>
+          </label>
+          <label class="modality-card" data-m="mixta">
+            <input type="radio" name="pillar" value="fundae" />
+            <span class="modality-card__icon">💶</span>
+            <span class="modality-card__label">FUNDAE para empresas</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Autor e imagen ── -->
+    <div class="admin-card">
+      <div class="section-header">
+        <div class="section-header__icon">🖼️</div>
+        <div>
+          <h2>Autor e imagen</h2>
+          <p>Quién firma el artículo y la foto de portada</p>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="author">Nombre del autor</label>
+          <input type="text" id="author" name="author" value="Equipo Algode" />
+        </div>
+        <div class="field">
+          <label for="heroImage">Imagen de portada <span style="font-weight:400;color:var(--text-ter)">(opcional)</span></label>
+          <input type="text" id="heroImage" name="heroImage" placeholder="/images/blog/nombre-archivo.webp" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="relatedCourseRef">Curso relacionado <span style="font-weight:400;color:var(--text-ter)">(aparece al final del artículo como llamada a la acción)</span></label>
+        <select id="relatedCourseRef" name="relatedCourseRef">
+          <option value="">— No enlazar a ningún curso —</option>
+          {courseFiles.map((c) => <option value={c.slug}>{c.slug}</option>)}
+        </select>
+        <p class="field-hint">Elige el curso más directamente relacionado con el tema del artículo.</p>
+      </div>
+    </div>
+
+    <!-- ── Contenido ── -->
+    <div class="admin-card">
+      <div class="section-header">
+        <div class="section-header__icon">✍️</div>
+        <div>
+          <h2>Contenido del artículo</h2>
+          <p>Texto completo — usa ## para subtítulos y ** para negrita</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <textarea id="body" name="body" rows="18"
+          placeholder={"## ¿Qué es el carné de carretilla elevadora?\n\nEscribe aquí el primer párrafo...\n\n## Requisitos para obtenerlo\n\nDetalla aquí los requisitos..."}></textarea>
+        <p class="field-hint">
+          <strong>Guía rápida de formato:</strong>&nbsp;
+          ## Título de sección &nbsp;·&nbsp;
+          **texto en negrita** &nbsp;·&nbsp;
+          - elemento de lista
+        </p>
+      </div>
+    </div>
+
+    <div class="save-bar">
+      <div class="save-bar__info">
+        El artículo se publicará en el blog y estará indexado en Google en 1–2 días.
+      </div>
+      <button type="submit" class="btn-primary">🚀 Publicar artículo</button>
+    </div>
+  </form>
+</AdminLayout>
+
+<script>
+  function slugify(str) {
+    return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  }
+  window.previewUrl = function(value) {
+    const preview = document.getElementById('blog-url-preview');
+    if (preview) preview.textContent = slugify(value) || '—';
+  };
+</script>

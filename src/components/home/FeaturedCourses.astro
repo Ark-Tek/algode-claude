@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+import CourseCard from '../course/CourseCard.astro';
+
+const allCourses = await getCollection('courses');
+const featured = allCourses.filter((c) => c.data.featured).slice(0, 3);
+---
+
+<section class="featured-courses">
+  <div class="container">
+    <div class="featured-courses__header">
+      <h2>Próximas convocatorias</h2>
+      <a href="/cursos">Ver todos los cursos →</a>
+    </div>
+    <div class="featured-courses__grid">
+      {featured.map((course) => <CourseCard course={course} />)}
+    </div>
+  </div>
+</section>
+
+<style>
+  .featured-courses { padding: var(--space-2xl) 0; }
+  .featured-courses__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-md); }
+  .featured-courses__header h2 { margin: 0; }
+  .featured-courses__header a { font-size: var(--fs-small); font-weight: 500; }
+  .featured-courses__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); }
+
+  @media (max-width: 900px) {
+    .featured-courses__grid { grid-template-columns: 1fr; }
+  }
+</style>

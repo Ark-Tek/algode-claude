@@ -1,0 +1,67 @@
+---
+interface Module {
+  module: string;
+  hours: number;
+  freePreview?: boolean;
+  topics: string[];
+}
+interface Props { curriculum: Module[] }
+const { curriculum } = Astro.props;
+const totalHours = curriculum.reduce((sum, m) => sum + m.hours, 0);
+---
+
+<section class="curriculum">
+  <h2>Programa completo del curso</h2>
+  <p class="curriculum__total">{curriculum.length} módulos · {totalHours} horas totales</p>
+
+  <div class="curriculum__list">
+    {curriculum.map((mod, i) => (
+      <details class="curriculum__item" open={i === 0}>
+        <summary>
+          <span class="curriculum__item-title">{mod.module}</span>
+          <span class="curriculum__item-meta">
+            {mod.freePreview && <span class="curriculum__preview-tag">Vista previa gratuita</span>}
+            {mod.hours}h
+          </span>
+        </summary>
+        <ul>
+          {mod.topics.map((topic) => <li>{topic}</li>)}
+        </ul>
+      </details>
+    ))}
+  </div>
+</section>
+
+<style>
+  .curriculum { padding: var(--space-2xl) 0; }
+  .curriculum__total { color: var(--color-text-tertiary); font-size: var(--fs-small); margin-bottom: var(--space-lg); }
+
+  .curriculum__list { border: 0.5px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; }
+  .curriculum__item { border-bottom: 0.5px solid var(--color-border); }
+  .curriculum__item:last-child { border-bottom: none; }
+
+  .curriculum__item summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md) var(--space-lg);
+    cursor: pointer;
+    font-weight: 500;
+    list-style: none;
+  }
+  .curriculum__item summary::-webkit-details-marker { display: none; }
+  .curriculum__item[open] summary { background: var(--color-canvas); }
+
+  .curriculum__item-meta { display: flex; align-items: center; gap: 0.5rem; font-size: var(--fs-small); color: var(--color-text-tertiary); font-weight: 400; }
+  .curriculum__preview-tag {
+    font-size: var(--fs-tiny);
+    background: var(--color-teal-light);
+    color: var(--color-teal);
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-weight: 500;
+  }
+
+  .curriculum__item ul { padding: 0 var(--space-lg) var(--space-md) 2.5rem; margin: 0; }
+  .curriculum__item li { font-size: var(--fs-small); color: var(--color-text-secondary); margin-bottom: 0.3rem; }
+</style>

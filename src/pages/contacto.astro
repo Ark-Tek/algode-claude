@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const FORM_ENDPOINT = 'https://formspree.io/f/REPLACE_ME_CONTACT';
+---
+
+<BaseLayout
+  title="Contacto — Algode Formación"
+  description="Ponte en contacto con Algode Formación. Teléfono, WhatsApp, email y formulario de contacto."
+>
+  <section class="container contact-page">
+    <h1>Hablemos</h1>
+    <div class="contact-page__grid">
+      <div class="contact-page__info">
+        <p>📞 <a href="tel:+34900000000">+34 900 000 000</a></p>
+        <p>💬 <a href="https://wa.me/34900000000" target="_blank" rel="noopener noreferrer">WhatsApp</a></p>
+        <p>✉️ <a href="mailto:hola@algodeformacion.es">hola@algodeformacion.es</a></p>
+        <p>📍 Santander, Cantabria — dirección exacta confirmada al reservar visita</p>
+      </div>
+      <form action={FORM_ENDPOINT} method="POST" class="contact-page__form">
+        <input type="text" name="nombre" placeholder="Nombre" required />
+        <input type="email" name="email" placeholder="Email" required />
+        <textarea name="mensaje" placeholder="¿En qué podemos ayudarte?" rows="4" required></textarea>
+        <button type="submit">Enviar mensaje →</button>
+      </form>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact-page { padding: var(--space-xl) var(--container-pad) var(--space-2xl); }
+  .contact-page__grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: var(--space-xl); margin-top: var(--space-md); }
+  .contact-page__info p { font-size: var(--fs-body); margin-bottom: 0.8rem; }
+  .contact-page__form { display: flex; flex-direction: column; gap: 0.6rem; }
+  .contact-page__form input, .contact-page__form textarea {
+    padding: 0.6rem 0.8rem; border-radius: var(--radius-sm); border: 0.5px solid var(--color-border-strong); font-size: var(--fs-body);
+  }
+  .contact-page__form button { background: var(--color-navy); color: #fff; border: none; border-radius: var(--radius-md); padding: 0.8rem; font-weight: 600; }
+
+  @media (max-width: 768px) { .contact-page__grid { grid-template-columns: 1fr; } }
+</style>

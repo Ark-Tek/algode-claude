@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Button from '../components/ui/Button.astro';
+---
+
+<BaseLayout title="Página no encontrada" description="La página que buscas no existe." noindex={true}>
+  <section class="container not-found">
+    <h1>404</h1>
+    <p>No encontramos la página que buscas. Puede que el curso haya cambiado de nombre o la convocatoria ya no esté disponible.</p>
+    <div class="not-found__ctas">
+      <Button href="/" variant="primary">Volver al inicio</Button>
+      <Button href="/cursos" variant="secondary">Ver catálogo de cursos</Button>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found { text-align: center; padding: var(--space-3xl) var(--container-pad); }
+  .not-found h1 { font-size: 4rem; color: var(--color-action-blue); }
+  .not-found p { max-width: 480px; margin: 0 auto var(--space-lg); }
+  .not-found__ctas { display: flex; gap: 0.6rem; justify-content: center; flex-wrap: wrap; }
+</style>

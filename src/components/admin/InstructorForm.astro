@@ -1,0 +1,175 @@
+---
+interface Props {
+  mode: 'edit' | 'new';
+  slug?: string;
+  data?: Record<string, any>;
+  body?: string;
+}
+const { mode, slug = '', data = {}, body = '' } = Astro.props;
+const v = (key: string, fallback: any = '') => data[key] ?? fallback;
+const currentPhoto = v('photo', '');
+---
+
+<!-- ═══ IDENTIFICADOR (solo en modo nuevo) ═════════════════ -->
+{mode === 'new' && (
+  <div class="admin-card">
+    <div class="section-header">
+      <div class="section-header__icon">🔗</div>
+      <div class="section-header__text">
+        <h2>Nombre del instructor</h2>
+        <p>El identificador interno se genera automáticamente</p>
+      </div>
+    </div>
+    <input type="hidden" name="slug" id="instructor-slug-hidden" />
+    <div class="field">
+      <label for="f-name-new">Nombre completo</label>
+      <input type="text" id="f-name-new" name="name"
+             placeholder="ej. Ana Suárez García" required
+             oninput="syncSlug(this.value)" />
+      <div class="url-preview">Identificador: <span id="slug-preview">—</span></div>
+    </div>
+  </div>
+)}
+{mode === 'edit' && <input type="hidden" name="slug" value={slug} />}
+
+<!-- ═══ DATOS PROFESIONALES ═══════════════════════════════ -->
+<div class="admin-card">
+  <div class="section-header">
+    <div class="section-header__icon">👤</div>
+    <div class="section-header__text">
+      <h2>Datos profesionales</h2>
+      <p>Aparecen en la ficha del curso junto a la foto</p>
+    </div>
+  </div>
+
+  {mode === 'edit' && (
+    <div class="field">
+      <label for="f-name-edit">Nombre completo</label>
+      <input type="text" id="f-name-edit" name="name" value={v('name')} required />
+    </div>
+  )}
+
+  <div class="field-row">
+    <div class="field">
+      <label for="f-role">Cargo o especialidad</label>
+      <input type="text" id="f-role" name="role" value={v('role')} required
+             placeholder="ej. Jefe de Almacén" />
+    </div>
+    <div class="field">
+      <label for="f-company">Empresa actual</label>
+      <input type="text" id="f-company" name="company" value={v('company')} required
+             placeholder="ej. Grupo Logístico Norte" />
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="f-years">Años de experiencia en el sector</label>
+      <input type="number" id="f-years" name="yearsExperience"
+             value={v('yearsExperience', 5)} min="0" required />
+    </div>
+    <div class="field">
+      <label for="f-linkedin">
+        LinkedIn
+        <span class="opt"> (opcional)</span>
+      </label>
+      <input type="url" id="f-linkedin" name="linkedinUrl" value={v('linkedinUrl')}
+             placeholder="https://www.linkedin.com/in/nombre" />
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FOTO ════════════════════════════════════════════ -->
+<div class="admin-card">
+  <div class="section-header">
+    <div class="section-header__icon">📷</div>
+    <div class="section-header__text">
+      <h2>Foto del instructor</h2>
+      <p>Se muestra en la tarjeta de instructor en cada ficha de curso</p>
+    </div>
+  </div>
+  <div class="field">
+    <label class="field-label">Archivo de la foto</label>
+    <div class="img-uploader">
+      <div class="img-uploader__thumb" id="instructor-img-thumb">
+        {currentPhoto ? (
+          <img src={currentPhoto} alt={v('name')} id="instructor-preview-el" />
+        ) : (
+          <span class="img-uploader__thumb-placeholder" id="instructor-placeholder">👤</span>
+        )}
+      </div>
+      <div class="img-uploader__controls">
+        <input type="text" class="img-uploader__path" id="f-photo" name="photo"
+               value={currentPhoto}
+               placeholder="/images/instructors/nombre-apellido.webp"
+               oninput="previewInstructor(this.value)" />
+        <p class="field-hint">
+          Sube el archivo a <strong>public/images/instructors/</strong> primero.
+          Recomendado: cuadrada 400×400 px en WebP.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PRESENTACIÓN ════════════════════════════════════ -->
+<div class="admin-card">
+  <div class="section-header">
+    <div class="section-header__icon">✍️</div>
+    <div class="section-header__text">
+      <h2>Presentación</h2>
+      <p>Textos que describen la trayectoria del instructor</p>
+    </div>
+  </div>
+  <div class="field">
+    <label for="f-bio-short">
+      Frase corta
+      <span class="opt"> — aparece bajo el nombre en la tarjeta</span>
+    </label>
+    <textarea id="f-bio-short" name="bioShort" rows="3" required
+              placeholder="12 años dirigiendo operaciones de almacén para distribuidoras nacionales. Especialista en picking y optimización de procesos.">{v('bioShort')}</textarea>
+    <p class="field-hint">Mantén la frase corta: 1–2 oraciones con el dato más relevante.</p>
+  </div>
+  <div class="field">
+    <label for="f-body">
+      Bio completa
+      <span class="opt"> — sección extendida del perfil</span>
+    </label>
+    <textarea id="f-body" name="body" rows="5" class="tall"
+              placeholder="Escribe una presentación más detallada: formación, empresas, proyectos destacados...">{body}</textarea>
+  </div>
+</div>
+
+<div class="save-bar">
+  <p class="save-bar__info">
+    <strong>Recuerda:</strong> el cambio estará visible en el sitio en 1–2 minutos.
+  </p>
+  <button type="submit" class="btn-primary">
+    {mode === 'new' ? '🚀 Publicar instructor' : '💾 Guardar cambios'}
+  </button>
+</div>
+
+<script>
+  function slugify(s) {
+    return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+            .replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  }
+  window.syncSlug = function(val) {
+    const s = slugify(val);
+    const h = document.getElementById('instructor-slug-hidden');
+    const p = document.getElementById('slug-preview');
+    if (h) h.value = s;
+    if (p) p.textContent = s || '—';
+  };
+  window.previewInstructor = function(src) {
+    const el = document.getElementById('instructor-preview-el');
+    const ph = document.getElementById('instructor-placeholder');
+    if (!src) { if (el) el.style.display='none'; if (ph) ph.style.display=''; return; }
+    if (el) { el.src = src; el.style.display = ''; } else {
+      const img = document.createElement('img');
+      img.id = 'instructor-preview-el'; img.alt = 'Vista previa'; img.src = src;
+      document.getElementById('instructor-img-thumb')?.appendChild(img);
+      if (ph) ph.style.display = 'none';
+    }
+  };
+</script>

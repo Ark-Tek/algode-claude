@@ -1,0 +1,26 @@
+---
+import employers from '../../data/employers.json';
+---
+
+<div class="employer-strip">
+  <div class="container employer-strip__inner">
+    <span class="employer-strip__label">Alumnos en</span>
+    {employers.map((e: { name: string; logo?: string }) => (
+      e.logo ? (
+        <img src={e.logo} alt={e.name} class="employer-strip__logo" loading="lazy" height="24" />
+      ) : (
+        <span class="employer-strip__chip">{e.name}</span>
+      )
+    ))}
+    <a href="/sobre-nosotros" class="employer-strip__more">+40 empresas →</a>
+  </div>
+</div>
+
+<style>
+  .employer-strip { background: #fff; border-top: 0.5px solid var(--color-border); border-bottom: 0.5px solid var(--color-border); }
+  .employer-strip__inner { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) var(--container-pad); overflow-x: auto; }
+  .employer-strip__label { font-size: var(--fs-tiny); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-tertiary); white-space: nowrap; }
+  .employer-strip__chip { background: var(--color-canvas); border-radius: var(--radius-sm); padding: 0.3rem 0.7rem; font-size: var(--fs-small); color: var(--color-text-secondary); white-space: nowrap; }
+  .employer-strip__logo { height: 24px; width: auto; object-fit: contain; flex-shrink: 0; opacity: 0.75; filter: grayscale(1); }
+  .employer-strip__more { font-size: var(--fs-tiny); color: var(--color-text-tertiary); white-space: nowrap; margin-left: auto; }
+</style>

@@ -1,0 +1,83 @@
+---
+import { getCollection } from 'astro:content';
+import { formatDate } from '../../utils/format-date';
+import { formatCurrency } from '../../utils/format-currency';
+
+const allCourses = await getCollection('courses');
+const byModality = {
+  presencial: allCourses.filter((c) => c.data.modality === 'presencial').slice(0, 2),
+  online: allCourses.filter((c) => c.data.modality === 'online').slice(0, 2),
+  mixta: allCourses.filter((c) => c.data.modality === 'mixta').slice(0, 2),
+};
+const labels = { presencial: 'Presencial', online: 'Online', mixta: 'Mixta' };
+---
+
+<div class="mega-menu" id="mega-menu">
+  <div class="container mega-menu__grid">
+    {Object.entries(byModality).map(([modality, courses]) => (
+      <div>
+        <p class="mega-menu__col-label" data-modality={modality}>{labels[modality as keyof typeof labels]}</p>
+        {courses.map((course) => {
+          const next = course.data.nextSessions[0];
+          return (
+            <a href={`/cursos/${course.id}`} class="mega-menu__item">
+              <div>
+                <h4>{course.data.title}</h4>
+                <p>
+                  {course.data.durationHours}h · {formatCurrency(course.data.price)}
+                  {next && ` · ${formatDate(next.date)}`}
+                </p>
+              </div>
+            </a>
+          );
+        })}
+        <a href={`/${modality}`} class="mega-menu__see-all">Ver todos →</a>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .mega-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-bottom: 0.5px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
+    display: none;
+    z-index: 40;
+  }
+  .mega-menu.is-open { display: block; }
+  .mega-menu__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-lg);
+    padding: var(--space-lg) var(--container-pad);
+  }
+  .mega-menu__col-label {
+    font-size: var(--fs-tiny);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--modality-color);
+    border-bottom: 0.5px solid var(--color-border);
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
+  }
+  .mega-menu__item {
+    display: block;
+    padding: 0.5rem;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-primary);
+  }
+  .mega-menu__item:hover { background: var(--color-canvas); text-decoration: none; }
+  .mega-menu__item h4 { font-size: var(--fs-small); font-weight: 500; margin: 0 0 2px; }
+  .mega-menu__item p { font-size: var(--fs-tiny); color: var(--color-text-tertiary); margin: 0; }
+  .mega-menu__see-all { font-size: var(--fs-tiny); font-weight: 500; color: var(--color-action-blue); }
+
+  @media (max-width: 900px) {
+    .mega-menu { display: none !important; }
+  }
+</style>

@@ -1,0 +1,48 @@
+---
+export const prerender = false;
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { listMarkdownFiles } from '../../../lib/github-cms';
+
+let courses: { name: string; slug: string }[] = [];
+let loadError = '';
+
+try {
+  courses = await listMarkdownFiles('src/content/courses');
+  courses.sort((a, b) => a.slug.localeCompare(b.slug));
+} catch (e) {
+  loadError = e instanceof Error ? e.message : 'No se pudo conectar con GitHub.';
+}
+---
+
+<AdminLayout title="Cursos">
+  <h1>Cursos</h1>
+  <p class="admin-subtitle">{courses.length} cursos publicados</p>
+
+  {loadError && (
+    <div class="alert alert--error"><span class="alert-icon">⚠️</span> {loadError}</div>
+  )}
+
+  <div style="margin-bottom:1rem;">
+    <a href="/admin/cursos/nuevo" class="btn-primary">+ Añadir curso nuevo</a>
+  </div>
+
+  <div class="admin-card">
+    {courses.length === 0 && !loadError && <p style="color:var(--text-ter);">No se encontraron cursos.</p>}
+    <ul class="admin-list">
+      {courses.map((course) => (
+        <li class="admin-list-item">
+          <div class="admin-list-item__left">
+            <span class="admin-list-item__icon">📚</span>
+            <div>
+              <div class="admin-list-item__name">{course.slug}</div>
+            </div>
+          </div>
+          <div class="admin-list-item__actions">
+            <a href={`/cursos/${course.slug}`} target="_blank" class="list-btn-site">Ver ↗</a>
+            <a href={`/admin/cursos/${course.slug}`} class="list-btn-edit">Editar</a>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</AdminLayout>

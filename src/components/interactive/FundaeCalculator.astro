@@ -1,0 +1,100 @@
+---
+// Calculadora de ahorro FUNDAE — sección I del blueprint (página /empresas).
+---
+
+<div class="fundae-calc">
+  <div class="fundae-calc__header">
+    <h3>🧮 Calculadora de ahorro FUNDAE</h3>
+    <p>Calcula cuánto puede bonificar tu empresa en función de su plantilla.</p>
+  </div>
+
+  <div class="fundae-calc__grid">
+    <label class="fundae-calc__field">
+      <span>Número de empleados</span>
+      <input type="number" id="fc-employees" min="1" max="5000" value="10" />
+    </label>
+    <label class="fundae-calc__field">
+      <span>Sector de actividad</span>
+      <select id="fc-sector">
+        <option value="logistica">Logística y transporte</option>
+        <option value="industria">Industria y producción</option>
+        <option value="servicios" selected>Servicios generales</option>
+      </select>
+    </label>
+  </div>
+
+  <label class="fundae-calc__slider">
+    <span>Coste total de cursos estimado: <strong id="fc-cost-label">1.500€</strong></span>
+    <input type="range" id="fc-cost" min="100" max="10000" step="100" value="1500" />
+  </label>
+
+  <div class="fundae-calc__result">
+    <div>
+      <p class="fundae-calc__result-num" id="fc-res-cost">1.500€</p>
+      <p class="fundae-calc__result-label">Coste total cursos</p>
+    </div>
+    <div class="fundae-calc__result--highlight">
+      <p class="fundae-calc__result-num" id="fc-res-bonif">1.500€</p>
+      <p class="fundae-calc__result-label">Bonificación FUNDAE</p>
+    </div>
+    <div>
+      <p class="fundae-calc__result-num fundae-calc__result-num--amber" id="fc-res-net">0€</p>
+      <p class="fundae-calc__result-label">Coste neto para tu empresa</p>
+    </div>
+  </div>
+  <p class="fundae-calc__note">Estimación orientativa. Te confirmamos la bonificación exacta en 24h.</p>
+</div>
+
+<script>
+  import { calculateFundaeSavings } from '../../scripts/fundae-calc-logic.js';
+
+  function format(n: number) {
+    return `${Math.round(n).toLocaleString('es-ES')}€`;
+  }
+
+  function recalc() {
+    const employees = parseInt((document.getElementById('fc-employees') as HTMLInputElement).value, 10) || 1;
+    const sector = (document.getElementById('fc-sector') as HTMLSelectElement).value;
+    const cost = parseInt((document.getElementById('fc-cost') as HTMLInputElement).value, 10) || 0;
+
+    document.getElementById('fc-cost-label')!.textContent = format(cost);
+
+    const { bonification, netCost } = calculateFundaeSavings(cost, employees, sector);
+    document.getElementById('fc-res-cost')!.textContent = format(cost);
+    document.getElementById('fc-res-bonif')!.textContent = format(bonification);
+    document.getElementById('fc-res-net')!.textContent = format(netCost);
+  }
+
+  document.getElementById('fc-employees')?.addEventListener('input', recalc);
+  document.getElementById('fc-sector')?.addEventListener('change', recalc);
+  document.getElementById('fc-cost')?.addEventListener('input', recalc);
+  recalc();
+</script>
+
+<style>
+  .fundae-calc { background: #fff; border: 0.5px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-lg); }
+  .fundae-calc__header h3 { margin-bottom: 0.2rem; }
+  .fundae-calc__header p { font-size: var(--fs-small); margin-bottom: var(--space-md); }
+
+  .fundae-calc__grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); margin-bottom: var(--space-md); }
+  .fundae-calc__field { display: block; font-size: var(--fs-small); color: var(--color-text-secondary); }
+  .fundae-calc__field span { display: block; margin-bottom: 0.3rem; }
+  .fundae-calc__field input, .fundae-calc__field select { width: 100%; padding: 0.5rem; border-radius: var(--radius-sm); border: 0.5px solid var(--color-border-strong); font-size: var(--fs-small); }
+
+  .fundae-calc__slider { display: block; margin-bottom: var(--space-md); font-size: var(--fs-small); }
+  .fundae-calc__slider span { display: block; margin-bottom: 0.4rem; }
+  .fundae-calc__slider input { width: 100%; }
+
+  .fundae-calc__result { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-sm); background: var(--color-canvas); border-radius: var(--radius-md); padding: var(--space-md); }
+  .fundae-calc__result > div { text-align: center; }
+  .fundae-calc__result-num { font-size: 1.3rem; font-weight: 700; margin: 0; }
+  .fundae-calc__result-num--amber { color: var(--color-amber); }
+  .fundae-calc__result--highlight .fundae-calc__result-num { color: var(--color-teal); }
+  .fundae-calc__result-label { font-size: var(--fs-tiny); color: var(--color-text-tertiary); margin: 0.2rem 0 0; }
+
+  .fundae-calc__note { font-size: var(--fs-tiny); color: var(--color-text-tertiary); text-align: center; margin: var(--space-sm) 0 0; }
+
+  @media (max-width: 640px) {
+    .fundae-calc__grid { grid-template-columns: 1fr; }
+  }
+</style>

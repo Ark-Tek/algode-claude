@@ -1,0 +1,64 @@
+---
+export const prerender = false;
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import CourseForm from '../../../components/admin/CourseForm.astro';
+import { readMarkdownFile, writeMarkdownFile, listMarkdownFiles } from '../../../lib/github-cms';
+import { parseCourseForm } from '../../../lib/course-form-parser';
+
+const { slug } = Astro.params;
+const filePath = `src/content/courses/${slug}.md`;
+
+let message = '';
+let error = '';
+let fileData: Record<string, any> = {};
+let fileBody = '';
+
+const instructorFiles = await listMarkdownFiles('src/content/instructors').catch(() => []);
+const instructors = instructorFiles.map((f) => ({ slug: f.slug, name: f.slug }));
+
+if (Astro.request.method === 'POST') {
+  try {
+    const formData = await Astro.request.formData();
+    const { data, body } = parseCourseForm(formData);
+    const current = await readMarkdownFile(filePath);
+    await writeMarkdownFile(filePath, data, body, `Editar curso: ${slug}`, current.sha);
+    message = 'Cambios guardados. El sitio se actualizará en 1–2 minutos.';
+  } catch (e) {
+    error = e instanceof Error ? e.message : 'Error desconocido al guardar.';
+  }
+}
+
+if (Astro.url.searchParams.get('creado')) {
+  message = 'Curso publicado. El sitio se actualizará en 1–2 minutos.';
+}
+
+try {
+  const file = await readMarkdownFile(filePath);
+  fileData = file.data;
+  fileBody = file.body.trim();
+} catch (e) {
+  error = error || (e instanceof Error ? e.message : 'No se pudo cargar el curso.');
+}
+---
+
+<AdminLayout title={`Editar: ${slug}`}>
+  <h1>Editar curso</h1>
+  <p class="admin-subtitle">{slug}</p>
+
+  {message && (
+    <div class="alert alert--success">
+      <span class="alert-icon">✅</span>
+      <div>{message}</div>
+    </div>
+  )}
+  {error && (
+    <div class="alert alert--error">
+      <span class="alert-icon">⚠️</span>
+      <div>{error}</div>
+    </div>
+  )}
+
+  <form method="POST">
+    <CourseForm mode="edit" slug={slug} instructors={instructors} data={fileData} body={fileBody} />
+  </form>
+</AdminLayout>

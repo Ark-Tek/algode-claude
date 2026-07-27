@@ -1,0 +1,527 @@
+---
+interface Instructor { slug: string; name: string }
+interface Props {
+  mode: 'edit' | 'new';
+  slug?: string;
+  instructors: Instructor[];
+  data?: Record<string, any>;
+  body?: string;
+}
+
+const { mode, slug = '', instructors, data = {}, body = '' } = Astro.props;
+const v = (key: string, fallback: any = '') => data[key] ?? fallback;
+
+const curriculumJson = JSON.stringify(Array.isArray(data.curriculum) ? data.curriculum : []);
+const faqJson        = JSON.stringify(Array.isArray(data.faq) ? data.faq : []);
+const sessionsJson   = JSON.stringify(Array.isArray(data.nextSessions) ? data.nextSessions : []);
+const outcomesText   = Array.isArray(data.outcomes) ? data.outcomes.join('\n') : '';
+const audienceText   = Array.isArray(data.audienceFit) ? data.audienceFit.join('\n') : '';
+const currentDesc    = v('shortDescription', '');
+const currentImg     = v('heroImage', '');
+---
+
+<!-- Hidden JSON fields populated by JS builders before submit -->
+<input type="hidden" name="curriculum"   id="curriculum-json" />
+<input type="hidden" name="faq"          id="faq-json" />
+<input type="hidden" name="nextSessions" id="sessions-json" />
+
+<!-- ═══ 1 · DATOS PRINCIPALES ═════════════════════════════════ -->
+<div class="admin-card">
+  <div class="section-header">
+    <div class="section-header__icon">📋</div>
+    <div class="section-header__text">
+      <h2>Datos principales</h2>
+      <p>Título, URL y textos de presentación del curso</p>
+    </div>
+  </div>
+
+  {mode === 'new' ? (
+    <div class="field">
+      <label for="f-title">Título del curso</label>
+      <input type="text" id="f-title" name="title"
+             placeholder="ej. Operador de Carretilla Elevadora" required
+             oninput="autoSlug(this.value)" />
+      <input type="hidden" name="slug" id="slug-hidden" />
+      <div class="url-preview">algodeformacion.es/cursos/<span id="slug-preview">—</span></div>
+    </div>
+  ) : (
+    <>
+      <input type="hidden" name="slug" value={slug} />
+      <div class="field">
+        <label for="f-title">Título del curso</label>
+        <input type="text" id="f-title" name="title" value={v('title')} required />
+      </div>
+    </>
+  )}
+
+  <div class="field">
+    <label for="f-desc">
+      Descripción corta
+      <span class="opt"> — aparece en la tarjeta y en Google</span>
+    </label>
+    <textarea id="f-desc" name="shortDescription" rows="3" maxlength="160" required
+              oninput="countChars(this,'desc-cnt')">{currentDesc}</textarea>
+    <div class="char-counter" id="desc-cnt" data-limit="160">
+      <span id="desc-cnt-n">{currentDesc.length}</span> / 160
+    </div>
+    <p class="field-hint">Escribe al menos 120 caracteres para que Google muestre la descripción completa en sus resultados.</p>
+  </div>
+
+  <div class="field">
+    <label for="f-body">
+      Texto introductorio
+      <span class="opt"> — sección "Por qué este curso" en la ficha</span>
+    </label>
+    <textarea id="f-body" name="body" rows="5" class="tall"
+              placeholder="Explica en 2-3 frases qué problema resuelve este curso para el alumno...">{body}</textarea>
+  </div>
+</div>
+
+<!-- ═══ 2 · MODALIDAD Y FORMATO ═══════════════════════════════ -->
+<div class="admin-card">
+  <div class="section-header">
+    <div class="section-header__icon">🏛️</div>
+    <div class="section-header__text">
+      <h2>Modalidad y formato</h2>
+      <p>Cómo se imparte el curso, nivel requerido y duración</p>
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="field-label">Modalidad de impartición</label>
+    <div class="modality-grid">
+      <label class="modality-card" data-m="presencial">
+        <input type="radio" name="modality" value="presencial" required
+               checked={v('modality', 'presencial') === 'presencial'} />
+        <span class="modality-card__icon">🏛️</span>
+        <span class="modality-card__label">Presencial</span>
+      </label>
+      <label class="modality-card" data-m="online">
+        <input type="radio" name="modality" value="online"
+               checked={v('modality') === 'online'} />
+        <span class="modality-card__icon">💻</span>
+        <span class="modality-card__label">Online</span>
+      </label>
+      <label class="modality-card" data-m="mixta">
+        <input type="radio" name="modality" value="mixta"
+               checked={v('modality') === 'mixta'} />
+        <span class="modality-card__icon">🔀</span>
+        <span class="modality-card__label">Mixta</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="field-label">Nivel requerido</label>
+    <div class="level-pills">
+      {['Todos', 'Iniciación', 'Intermedio', 'Con experiencia'].map((l) => (
+        <label class="level-pill">
+          <input type="radio" name="level" value={l} required
+                 checked={v('level', 'Todos') === l} />
+          {l}
+        </label>
+      ))}
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="f-hours">Duración total (horas)</label>
+      <input type="number" id="f-hours" name="durationHours"
+             value={v('durationHours', 20)} min="1" required />
+    </div>
+    <div class="field">
+      <label for="f-instructor">Instructor</label>
+      <select id="f-instructor" name="instructorRef" required>
+        {instructors.map((i) => (
+          <option value={i.slug} selected={v('instructorRef') === i.slug}>
+            {i.name || i.slug}
+          </option>
+        ))}
+      </select>
+    </div>
+  </div>
+
+  <!-- Image with preview -->
+  <div class="field">
+    <label class="field-label">Imagen del curso</label>
+    <div class="img-uploader">
+      <div class="img-uploader__thumb" id="img-thumb">
+        {currentImg ? (
+          <img src={currentImg} alt="Vista previa" id="img-preview-el" />
+        ) : (
+          <span class="img-uploader__thumb-placeholder" id="img-placeholder">🖼️</span>
+        )}
+      </div>
+      <div class="img-uploader__controls">
+        <input type="text" class="img-uploader__path" id="f-heroImage" name="heroImage"
+               value={currentImg}
+               placeholder="/images/courses/nombre-archivo.jpg"
+               oninput="previewImg(this.value)" />
+        <p class="field-hint">
+          Sube la imagen a <strong>public/images/courses/</strong> primero, luego escribe aquí el nombre
+          del archivo. Formato recomendado: <strong>1200×675 px, WebP</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 3 · PRECIO Y CERTIFICACIÓN ════════════════════════════ -->
+<div class="admin-card">
+  <div class="section-header">
+    <div class="section-header__icon">💶</div>
+    <div class="section-header__text">
+      <h2>Precio y certificación</h2>
+      <p>Coste, bonificación FUNDAE y certificado oficial que recibe el alumno</p>
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="f-price">
+        Precio en euros
+        <span class="opt"> — deja vacío si es "Consultar precio"</span>
+      </label>
+      <input type="number" id="f-price" name="price"
+             value={v('price', '')} min="0" placeholder="ej. 150" />
+    </div>
+    <div class="field">
+      <label for="f-cert">Entidad u organismo que emite el certificado</label>
+      <input type="text" id="f-cert" name="certificationBody"
+             value={v('certificationBody')} placeholder="ej. SEPE · RD 1215/1997" />
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="field-label">Opciones adicionales</label>
+    <div class="toggle-group">
+      <label class="toggle-label">
+        <input type="checkbox" name="fundaeEligible" checked={v('fundaeEligible', false)} />
+        <span class="toggle-check"></span>
+        Bonificable FUNDAE
+      </label>
+      <label class="toggle-label">
+        <input type="checkbox" name="hasCertificate" checked={v('hasCertificate', true)} />
+        <span class="toggle-check"></span>
+        Incluye certificado oficial
+      </label>
+      <label class="toggle-label">
+        <input type="checkbox" name="featured" checked={v('featured', false)} />
+        <span class="toggle-check"></span>
+        Destacar en la portada
+      </label>
+    </div>
+  </div>
+
+  <div class="field-row">
+    <div class="field">
+      <label for="f-rating">
+        Valoración media
+        <span class="opt"> (0–5, opcional)</span>
+      </label>
+      <input type="number" id="f-rating" name="rating"
+             value={v('rating', '')} min="0" max="5" step="0.1" placeholder="ej. 4.9" />
+    </div>
+    <div class="field">
+      <label for="f-reviews">
+        Número de reseñas
+        <span class="opt"> (opcional)</span>
+      </label>
+      <input type="number" id="f-reviews" name="reviewCount"
+             value={v('reviewCount', '')} min="0" placeholder="ej. 48" />
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 4 · PRÓXIMAS CONVOCATORIAS ════════════════════════════ -->
+<div class="admin-card">
+  <div class="section-header">
+    <div class="section-header__icon">📅</div>
+    <div class="section-header__text">
+      <h2>Próximas convocatorias</h2>
+      <p>Fechas disponibles con plazas totales y plazas ya ocupadas</p>
+    </div>
+  </div>
+  <div class="builder" id="sessions-builder"></div>
+  <div class="builder-empty show" id="sessions-empty">
+    Sin fechas programadas — ideal para cursos online sin fecha fija.
+  </div>
+  <button type="button" class="builder-add" onclick="addSession()">
+    <span class="add-circle">+</span> Añadir convocatoria
+  </button>
+</div>
+
+<!-- ═══ 5 · QUÉ APRENDERÁN ════════════════════════════════════ -->
+<div class="admin-card">
+  <div class="section-header">
+    <div class="section-header__icon">🎯</div>
+    <div class="section-header__text">
+      <h2>Qué aprenderán los alumnos</h2>
+      <p>Aparecen como puntos en la ficha — escribe una competencia por línea</p>
+    </div>
+  </div>
+  <div class="field">
+    <label for="f-outcomes">Competencias y habilidades que se obtienen</label>
+    <textarea id="f-outcomes" name="outcomes" rows="6" class="tall"
+              placeholder={"Maneja con seguridad la carretilla elevadora\nObtén el carné oficial reconocido por la Inspección de Trabajo\nAplica los protocolos del RD 1215/1997"}>{outcomesText}</textarea>
+    <p class="field-hint">Usa verbos de acción: "Maneja…", "Obtén…", "Aplica…". Una frase por línea.</p>
+  </div>
+  <div class="field">
+    <label for="f-audience">¿Para quién es este curso?</label>
+    <textarea id="f-audience" name="audienceFit" rows="4"
+              placeholder={"Buscas trabajo en logística y quieres un carné oficial\nYa trabajas en almacén y necesitas certificar tu formación"}>{audienceText}</textarea>
+    <p class="field-hint">Una situación por línea. Describe al alumno ideal, no al curso.</p>
+  </div>
+</div>
+
+<!-- ═══ 6 · PROGRAMA DEL CURSO ════════════════════════════════ -->
+<div class="admin-card">
+  <div class="section-header">
+    <div class="section-header__icon">📚</div>
+    <div class="section-header__text">
+      <h2>Programa del curso</h2>
+      <p>Módulos, horas y temas — añade uno por uno</p>
+    </div>
+  </div>
+  <div class="builder" id="curriculum-builder"></div>
+  <div class="builder-empty show" id="curriculum-empty">
+    Sin módulos todavía — pulsa el botón para añadir el primero.
+  </div>
+  <button type="button" class="builder-add" onclick="addModule()">
+    <span class="add-circle">+</span> Añadir módulo
+  </button>
+</div>
+
+<!-- ═══ 7 · PREGUNTAS FRECUENTES ══════════════════════════════ -->
+<div class="admin-card">
+  <div class="section-header">
+    <div class="section-header__icon">❓</div>
+    <div class="section-header__text">
+      <h2>Preguntas frecuentes</h2>
+      <p>Las dudas más habituales antes de matricularse — reducen el abandono</p>
+    </div>
+  </div>
+  <div class="builder" id="faq-builder"></div>
+  <div class="builder-empty show" id="faq-empty">
+    Sin preguntas todavía — añade al menos 4 o 5.
+  </div>
+  <button type="button" class="builder-add" onclick="addFAQ()">
+    <span class="add-circle">+</span> Añadir pregunta
+  </button>
+</div>
+
+<!-- ═══ Save bar ═══════════════════════════════════════════════ -->
+<div class="save-bar">
+  <p class="save-bar__info">
+    <strong>Importante:</strong> al guardar se crea un commit en GitHub y el sitio se actualiza en 1–2 minutos.
+  </p>
+  <button type="submit" class="btn-primary">
+    {mode === 'new' ? '🚀 Publicar curso' : '💾 Guardar cambios'}
+  </button>
+</div>
+
+<script define:vars={{ curriculumJson, faqJson, sessionsJson }}>
+/* ── Helpers ─────────────────────────────────────────────── */
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+function recount(builderId, emptyId, prefix) {
+  const b = document.getElementById(builderId);
+  const e = document.getElementById(emptyId);
+  if (e) e.classList.toggle('show', b.children.length === 0);
+  Array.from(b.children).forEach((item, i) => {
+    const t = item.querySelector('.builder-item__title');
+    if (t) t.textContent = prefix + ' ' + (i + 1);
+  });
+}
+
+/* ── Slug auto-gen ───────────────────────────────────────── */
+function slugify(s) {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+          .replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+}
+window.autoSlug = function(val) {
+  const s = slugify(val);
+  const h = document.getElementById('slug-hidden');
+  const p = document.getElementById('slug-preview');
+  if (h) h.value = s;
+  if (p) p.textContent = s || '—';
+};
+
+/* ── Image preview ───────────────────────────────────────── */
+window.previewImg = function(src) {
+  const el  = document.getElementById('img-preview-el');
+  const ph  = document.getElementById('img-placeholder');
+  if (!src) {
+    if (el) el.remove();
+    if (ph) ph.style.display = '';
+    return;
+  }
+  let img = el;
+  if (!img) {
+    img = document.createElement('img');
+    img.id = 'img-preview-el';
+    img.alt = 'Vista previa';
+    document.getElementById('img-thumb')?.appendChild(img);
+    if (ph) ph.style.display = 'none';
+  }
+  img.src = src;
+  img.style.display = '';
+};
+
+/* ── Character counter ───────────────────────────────────── */
+window.countChars = function(el, counterId) {
+  const wrap = document.getElementById(counterId);
+  const n    = document.getElementById(counterId + '-n');
+  const len  = el.value.length;
+  const lim  = parseInt(el.maxLength) || 160;
+  if (n) n.textContent = len;
+  if (wrap) {
+    wrap.classList.toggle('warn',  len > lim * 0.85);
+    wrap.classList.toggle('limit', len >= lim);
+  }
+};
+
+/* ── Sessions builder ────────────────────────────────────── */
+function saveSessions() {
+  const rows = document.querySelectorAll('#sessions-builder .builder-item');
+  const data = Array.from(rows).map(r => ({
+    date:       r.querySelector('.s-date')?.value  || '',
+    seatsTotal: parseInt(r.querySelector('.s-total')?.value) || 0,
+    seatsTaken: parseInt(r.querySelector('.s-taken')?.value) || 0,
+    ...(r.querySelector('.s-loc')?.value ? { location: r.querySelector('.s-loc').value } : {}),
+  }));
+  document.getElementById('sessions-json').value = JSON.stringify(data);
+}
+
+window.addSession = function(d = {}) {
+  const b = document.getElementById('sessions-builder');
+  const i = b.children.length + 1;
+  const el = document.createElement('div');
+  el.className = 'builder-item';
+  el.innerHTML = `
+    <div class="builder-item__header">
+      <span class="builder-item__title">Convocatoria ${i}</span>
+      <button type="button" class="builder-item__del"
+              onclick="this.closest('.builder-item').remove();saveSessions();recount('sessions-builder','sessions-empty','Convocatoria')">
+        Eliminar
+      </button>
+    </div>
+    <div class="builder-item__fields">
+      <div class="builder-item__row-3">
+        <div><label>Fecha de inicio</label>
+          <input type="date" class="s-date" value="${esc(d.date||'')}" oninput="saveSessions()" /></div>
+        <div><label>Plazas totales</label>
+          <input type="number" class="s-total" value="${esc(d.seatsTotal||16)}" min="1" oninput="saveSessions()" /></div>
+        <div><label>Plazas ocupadas</label>
+          <input type="number" class="s-taken" value="${esc(d.seatsTaken||0)}" min="0" oninput="saveSessions()" /></div>
+      </div>
+      <div><label>Lugar de celebración <span style="font-weight:400;color:var(--text-3)">(vacío si es online)</span></label>
+        <input type="text" class="s-loc" value="${esc(d.location||'')}"
+               placeholder="ej. Santander, Centro de Formación Algode" oninput="saveSessions()" /></div>
+    </div>`;
+  b.appendChild(el);
+  saveSessions();
+  recount('sessions-builder','sessions-empty','Convocatoria');
+};
+
+/* ── Curriculum builder ──────────────────────────────────── */
+function saveCurriculum() {
+  const rows = document.querySelectorAll('#curriculum-builder .builder-item');
+  const data = Array.from(rows).map(r => ({
+    module:      r.querySelector('.cm-name')?.value    || '',
+    hours:       parseFloat(r.querySelector('.cm-hours')?.value) || 0,
+    freePreview: r.querySelector('.cm-prev')?.checked  || false,
+    topics:      (r.querySelector('.cm-topics')?.value || '')
+                   .split('\n').map(t => t.trim()).filter(Boolean),
+  }));
+  document.getElementById('curriculum-json').value = JSON.stringify(data);
+}
+
+window.addModule = function(d = {}) {
+  const b = document.getElementById('curriculum-builder');
+  const i = b.children.length + 1;
+  const el = document.createElement('div');
+  el.className = 'builder-item';
+  el.innerHTML = `
+    <div class="builder-item__header">
+      <span class="builder-item__title">Módulo ${i}</span>
+      <button type="button" class="builder-item__del"
+              onclick="this.closest('.builder-item').remove();saveCurriculum();recount('curriculum-builder','curriculum-empty','Módulo')">
+        Eliminar
+      </button>
+    </div>
+    <div class="builder-item__fields">
+      <div class="builder-item__row">
+        <div><label>Nombre del módulo</label>
+          <input type="text" class="cm-name" value="${esc(d.module||'')}"
+                 placeholder="ej. Fundamentos del almacén logístico" oninput="saveCurriculum()" /></div>
+        <div><label>Horas</label>
+          <input type="number" class="cm-hours" value="${esc(d.hours||4)}"
+                 min="0.5" step="0.5" oninput="saveCurriculum()" /></div>
+      </div>
+      <div><label>Temas que cubre <span style="font-weight:400;color:var(--text-3)">(uno por línea)</span></label>
+        <textarea class="cm-topics" rows="4"
+                  placeholder="Tipos de almacén&#10;Flujo de mercancía&#10;Seguridad básica"
+                  oninput="saveCurriculum()">${esc((d.topics||[]).join('\n'))}</textarea></div>
+      <label class="builder-item__check">
+        <input type="checkbox" class="cm-prev" ${d.freePreview?'checked':''} onchange="saveCurriculum()" />
+        Mostrar como vista previa gratuita
+      </label>
+    </div>`;
+  b.appendChild(el);
+  saveCurriculum();
+  recount('curriculum-builder','curriculum-empty','Módulo');
+};
+
+/* ── FAQ builder ─────────────────────────────────────────── */
+function saveFAQ() {
+  const rows = document.querySelectorAll('#faq-builder .builder-item');
+  const data = Array.from(rows).map(r => ({
+    question: r.querySelector('.fq-q')?.value || '',
+    answer:   r.querySelector('.fq-a')?.value || '',
+  }));
+  document.getElementById('faq-json').value = JSON.stringify(data);
+}
+
+window.addFAQ = function(d = {}) {
+  const b = document.getElementById('faq-builder');
+  const i = b.children.length + 1;
+  const el = document.createElement('div');
+  el.className = 'builder-item';
+  el.innerHTML = `
+    <div class="builder-item__header">
+      <span class="builder-item__title">Pregunta ${i}</span>
+      <button type="button" class="builder-item__del"
+              onclick="this.closest('.builder-item').remove();saveFAQ();recount('faq-builder','faq-empty','Pregunta')">
+        Eliminar
+      </button>
+    </div>
+    <div class="builder-item__fields">
+      <div><label>¿Qué pregunta hace el alumno?</label>
+        <input type="text" class="fq-q" value="${esc(d.question||'')}"
+               placeholder="ej. ¿Necesito experiencia previa para este curso?" oninput="saveFAQ()" /></div>
+      <div><label>Respuesta</label>
+        <textarea class="fq-a" rows="3"
+                  placeholder="Responde de forma directa y concisa..."
+                  oninput="saveFAQ()">${esc(d.answer||'')}</textarea></div>
+    </div>`;
+  b.appendChild(el);
+  saveFAQ();
+  recount('faq-builder','faq-empty','Pregunta');
+};
+
+/* ── Init on load ────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+  try { JSON.parse(sessionsJson).forEach(d => addSession(d)); }   catch(e) {}
+  try { JSON.parse(curriculumJson).forEach(d => addModule(d)); }  catch(e) {}
+  try { JSON.parse(faqJson).forEach(d => addFAQ(d)); }            catch(e) {}
+  /* Trigger char counter for existing value */
+  const desc = document.getElementById('f-desc');
+  if (desc) countChars(desc, 'desc-cnt');
+  /* Show image preview for existing path */
+  const imgPath = document.getElementById('f-heroImage')?.value;
+  if (imgPath) previewImg(imgPath);
+});
+</script>

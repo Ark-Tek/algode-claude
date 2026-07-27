@@ -1,0 +1,20 @@
+---
+import BaseLayout from './BaseLayout.astro';
+interface Props { title: string }
+const { title } = Astro.props;
+---
+
+<BaseLayout title={title} description={`${title} — Algode Formación`} noindex={false}>
+  <div class="container legal-layout">
+    <h1>{title}</h1>
+    <div class="legal-layout__content">
+      <slot />
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .legal-layout { max-width: 720px; padding: var(--space-xl) var(--container-pad) var(--space-2xl); }
+  .legal-layout__content :global(h2) { margin-top: var(--space-lg); }
+  .legal-layout__content :global(p) { line-height: var(--lh-relaxed); }
+</style>

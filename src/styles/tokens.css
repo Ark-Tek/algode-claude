@@ -1,0 +1,94 @@
+/* ==========================================================================
+   ALGODE FORMACIÓN — DESIGN TOKENS
+   Paleta, tipografía y espaciado definidos en el blueprint UI/UX.
+   Todo el sitio consume estas variables — nunca hardcodear un color o
+   tamaño directamente en un componente.
+   ========================================================================== */
+
+:root {
+  /* ---- Color: marca ---- */
+  --color-navy: #0F2D4A;          /* Autoridad — headers, footer, fondos oscuros */
+  --color-navy-light: #1E4670;
+  --color-action-blue: #1565C0;   /* CTAs, links, modalidad Presencial */
+  --color-action-blue-dark: #0D47A1;
+  --color-amber: #E65100;         /* Urgencia, badges de certificación, acentos */
+  --color-amber-light: #FFF3E0;
+  --color-teal: #00897B;          /* Modalidad Online, success states */
+  --color-teal-light: #E0F5F1;
+  --color-purple: #7B1FA2;        /* Modalidad Mixta */
+  --color-purple-light: #EDE7F6;
+
+  /* ---- Color: superficie y texto ---- */
+  --color-canvas: #F5F7FA;
+  --color-surface: #FFFFFF;
+  --color-text-primary: #15212E;
+  --color-text-secondary: #44515E;
+  --color-text-tertiary: #7C8896;
+  --color-border: #E2E8F0;
+  --color-border-strong: #CBD5E1;
+
+  /* ---- Color: estado ---- */
+  --color-success: #2E7D32;
+  --color-success-bg: #EAF3DE;
+  --color-warning: #B26A00;
+  --color-warning-bg: #FAEEDA;
+  --color-danger: #B3261E;
+  --color-danger-bg: #FCEBEB;
+
+  /* ---- Tipografía ---- */
+  --font-display: 'Sora', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  --fs-h1: clamp(1.75rem, 1.4rem + 1.5vw, 2.75rem);
+  --fs-h2: clamp(1.4rem, 1.2rem + 1vw, 2rem);
+  --fs-h3: 1.25rem;
+  --fs-h4: 1.05rem;
+  --fs-body: 1rem;
+  --fs-small: 0.875rem;
+  --fs-tiny: 0.75rem;
+
+  --lh-tight: 1.2;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.65;
+
+  /* ---- Espaciado ---- */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4.5rem;
+  --space-section: 6rem;
+
+  /* ---- Layout ---- */
+  --container-max: 1200px;
+  --container-pad: 1.25rem;
+
+  /* ---- Bordes y sombra ---- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 3px rgba(15, 45, 74, 0.08);
+  --shadow-md: 0 4px 16px rgba(15, 45, 74, 0.10);
+  --shadow-lg: 0 12px 32px rgba(15, 45, 74, 0.14);
+
+  /* ---- Modalidad: mapeo semántico ---- */
+  --modality-presencial: var(--color-action-blue);
+  --modality-presencial-bg: #EFF6FF;
+  --modality-online: var(--color-teal);
+  --modality-online-bg: var(--color-teal-light);
+  --modality-mixta: var(--color-purple);
+  --modality-mixta-bg: var(--color-purple-light);
+
+  /* ---- Transiciones ---- */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.25s ease;
+}
+
+/* Utilidad para aplicar el color de modalidad dinámicamente vía data-attribute */
+[data-modality='presencial'] { --modality-color: var(--modality-presencial); --modality-bg: var(--modality-presencial-bg); }
+[data-modality='online']     { --modality-color: var(--modality-online);     --modality-bg: var(--modality-online-bg); }
+[data-modality='mixta']      { --modality-color: var(--modality-mixta);      --modality-bg: var(--modality-mixta-bg); }

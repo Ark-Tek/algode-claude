@@ -1,0 +1,18 @@
+---
+interface Props { rating: number; reviewCount?: number; size?: 'sm' | 'md' }
+const { rating, reviewCount, size = 'md' } = Astro.props;
+---
+
+<span class:list={['review-stars', `review-stars--${size}`]}>
+  <span aria-hidden="true">{'★'.repeat(Math.round(rating))}{'☆'.repeat(5 - Math.round(rating))}</span>
+  <strong>{rating}</strong>
+  {reviewCount && <span class="review-stars__count">({reviewCount})</span>}
+</span>
+
+<style>
+  .review-stars { color: #F59E0B; display: inline-flex; gap: 0.3rem; align-items: baseline; }
+  .review-stars strong { color: var(--color-text-primary); }
+  .review-stars__count { color: var(--color-text-tertiary); }
+  .review-stars--sm { font-size: var(--fs-tiny); }
+  .review-stars--md { font-size: var(--fs-small); }
+</style>

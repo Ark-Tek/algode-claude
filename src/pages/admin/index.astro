@@ -1,0 +1,29 @@
+---
+export const prerender = false;
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Panel">
+  <h1>Panel de mantenimiento</h1>
+  <p class="admin-subtitle">
+    Cada cambio que guardes aquí crea un commit en GitHub y actualiza el sitio en 1–2 minutos.
+  </p>
+
+  <div class="dash-grid">
+    <a href="/admin/cursos" class="dash-card">
+      <span class="dash-card__icon">📚</span>
+      <p class="dash-card__title">Cursos</p>
+      <p class="dash-card__desc">Edita precio, fechas, programa e instructor, o publica un curso nuevo.</p>
+    </a>
+    <a href="/admin/instructores" class="dash-card">
+      <span class="dash-card__icon">👤</span>
+      <p class="dash-card__title">Instructores</p>
+      <p class="dash-card__desc">Edita la bio, foto y experiencia de un instructor, o añade uno nuevo.</p>
+    </a>
+    <a href="/admin/blog/nuevo" class="dash-card">
+      <span class="dash-card__icon">📝</span>
+      <p class="dash-card__title">Blog</p>
+      <p class="dash-card__desc">Publica un nuevo artículo en el blog de la academia.</p>
+    </a>
+  </div>
+</AdminLayout>

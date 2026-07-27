@@ -1,0 +1,88 @@
+---
+import { formatCurrency } from '../../utils/format-currency';
+import { formatDate } from '../../utils/format-date';
+import { getSeatsStatus, getSeatsStatusLabel, getSeatsRemaining } from '../../utils/seats-status';
+
+interface Session { date: Date; seatsTotal: number; seatsTaken: number }
+interface Props {
+  title: string;
+  price: number | null;
+  nextSession?: Session;
+}
+const { title, price, nextSession } = Astro.props;
+const status = nextSession ? getSeatsStatus(nextSession) : null;
+const waMessage = encodeURIComponent(`Hola, me interesa el curso de ${title}`);
+---
+
+<div class="sticky-enroll" id="sticky-enroll">
+  <div class="container sticky-enroll__inner">
+    <div class="sticky-enroll__info">
+      <p class="sticky-enroll__price">{formatCurrency(price)}{nextSession && ` · ${formatDate(nextSession.date)}`}</p>
+      {nextSession && status && (
+        <p class="sticky-enroll__seats" data-status={status}>{getSeatsStatusLabel(status, getSeatsRemaining(nextSession))}</p>
+      )}
+    </div>
+    <div class="sticky-enroll__actions">
+      <a href={`https://wa.me/34900000000?text=${waMessage}`} target="_blank" rel="noopener noreferrer" class="sticky-enroll__wa" aria-label="Preguntar por WhatsApp">
+        💬
+      </a>
+      <a href="#matricula" class="sticky-enroll__cta">Reservar →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Aparece tras el 30% de scroll de la página, como define el blueprint.
+  const bar = document.getElementById('sticky-enroll');
+  function checkScroll() {
+    const scrolled = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+    bar?.classList.toggle('is-visible', scrolled > 0.15);
+  }
+  window.addEventListener('scroll', checkScroll, { passive: true });
+  checkScroll();
+</script>
+
+<style>
+  .sticky-enroll {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--color-navy);
+    color: #fff;
+    z-index: 50;
+    transform: translateY(100%);
+    transition: transform var(--transition-base);
+  }
+  .sticky-enroll.is-visible { transform: translateY(0); }
+
+  .sticky-enroll__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.7rem var(--container-pad);
+    padding-bottom: max(0.7rem, env(safe-area-inset-bottom));
+  }
+  .sticky-enroll__price { font-weight: 600; margin: 0; font-size: var(--fs-small); }
+  .sticky-enroll__seats { font-size: var(--fs-tiny); margin: 0; opacity: 0.75; }
+  .sticky-enroll__seats[data-status='pocas-plazas'] { color: #FFB74D; opacity: 1; }
+
+  .sticky-enroll__actions { display: flex; gap: 0.5rem; align-items: center; }
+  .sticky-enroll__wa {
+    width: 38px; height: 38px;
+    background: #25D366;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+  }
+  .sticky-enroll__cta {
+    background: var(--color-amber);
+    color: #fff;
+    padding: 0.6rem 1.1rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: var(--fs-small);
+    white-space: nowrap;
+  }
+  .sticky-enroll__cta:hover { text-decoration: none; }
+</style>

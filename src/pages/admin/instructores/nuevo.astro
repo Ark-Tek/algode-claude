@@ -1,0 +1,37 @@
+---
+export const prerender = false;
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import InstructorForm from '../../../components/admin/InstructorForm.astro';
+import { writeMarkdownFile, slugify } from '../../../lib/github-cms';
+
+let error = '';
+if (Astro.request.method === 'POST') {
+  try {
+    const fd = await Astro.request.formData();
+    const rawSlug = String(fd.get('slug') ?? '').trim();
+    if (!rawSlug) throw new Error('El nombre es obligatorio.');
+    const finalSlug = slugify(rawSlug);
+    const data = {
+      name: String(fd.get('name') ?? '').trim(),
+      role: String(fd.get('role') ?? '').trim(),
+      company: String(fd.get('company') ?? '').trim(),
+      yearsExperience: Number(fd.get('yearsExperience') ?? 0),
+      photo: String(fd.get('photo') ?? '').trim() || undefined,
+      linkedinUrl: String(fd.get('linkedinUrl') ?? '').trim() || undefined,
+      bioShort: String(fd.get('bioShort') ?? '').trim(),
+    };
+    const body = String(fd.get('body') ?? '').trim();
+    await writeMarkdownFile(`src/content/instructors/${finalSlug}.md`, data, body, `Nuevo instructor: ${finalSlug}`);
+    return Astro.redirect(`/admin/instructores/${finalSlug}`);
+  } catch (e) { error = e instanceof Error ? e.message : 'Error al publicar.'; }
+}
+---
+
+<AdminLayout title="Nuevo instructor">
+  <h1>Nuevo instructor</h1>
+  <p class="admin-subtitle">Rellena los datos y pulsa "Publicar instructor"</p>
+  {error && <div class="alert alert--error"><span class="alert-icon">⚠️</span><div>{error}</div></div>}
+  <form method="POST">
+    <InstructorForm mode="new" />
+  </form>
+</AdminLayout>

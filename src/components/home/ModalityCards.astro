@@ -1,0 +1,56 @@
+---
+import { getCollection } from 'astro:content';
+const allCourses = await getCollection('courses');
+const cards = [
+  { key: 'presencial', label: 'Presencial', icon: '🏛️', desc: 'Formación práctica en instalaciones con maquinaria real. Carné oficial el mismo día.' },
+  { key: 'online', label: 'Online', icon: '💻', desc: 'A tu ritmo, desde casa. Acceso de por vida al contenido. Campus virtual propio.' },
+  { key: 'mixta', label: 'Mixta', icon: '🔀', desc: 'Teoría online + práctica presencial. El mejor equilibrio para carné de maquinaria.' },
+];
+---
+
+<section class="modality-cards">
+  <div class="container">
+    <p class="eyebrow">Elige tu modalidad</p>
+    <div class="modality-cards__grid">
+      {cards.map((c) => {
+        const count = allCourses.filter((course) => course.data.modality === c.key).length;
+        return (
+          <a href={`/${c.key}`} class="modality-card" data-modality={c.key}>
+            <span class="modality-card__icon" aria-hidden="true">{c.icon}</span>
+            <h3>{c.label}</h3>
+            <p>{c.desc}</p>
+            <div class="modality-card__bottom">
+              <span>{count} cursos disponibles</span>
+              <span class="modality-card__link">Ver cursos →</span>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  </div>
+</section>
+
+<style>
+  .modality-cards { padding: var(--space-2xl) 0; }
+  .modality-cards__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); margin-top: var(--space-md); }
+
+  .modality-card {
+    display: block;
+    background: #fff;
+    border: 0.5px solid var(--color-border);
+    border-top: 3px solid var(--modality-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    color: var(--color-text-primary);
+  }
+  .modality-card:hover { box-shadow: var(--shadow-md); text-decoration: none; }
+  .modality-card__icon { font-size: 1.8rem; display: block; margin-bottom: var(--space-sm); }
+  .modality-card h3 { margin-bottom: 0.3rem; }
+  .modality-card p { font-size: var(--fs-small); margin-bottom: var(--space-md); }
+  .modality-card__bottom { display: flex; justify-content: space-between; font-size: var(--fs-tiny); color: var(--color-text-tertiary); }
+  .modality-card__link { color: var(--modality-color); font-weight: 500; }
+
+  @media (max-width: 768px) {
+    .modality-cards__grid { grid-template-columns: 1fr; }
+  }
+</style>

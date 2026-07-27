@@ -1,0 +1,62 @@
+---
+import Button from '../ui/Button.astro';
+import statsData from '../../data/stats.json';
+---
+
+<section class="hero">
+  <div class="container hero__inner">
+    <div>
+      <p class="eyebrow">● Formación certificada para logística e industria</p>
+      <h1 class="hero__h1">Certifícate. <span>Trabaja.</span><br />Crece profesionalmente.</h1>
+      <p class="hero__sub">
+        Cursos presenciales y online con instructores activos en el sector. Certificados reconocidos por el SEPE.
+        Bonificables al 100% para empresas mediante créditos FUNDAE.
+      </p>
+      <div class="hero__ctas">
+        <Button href="/presencial" variant="primary">Ver cursos presenciales →</Button>
+        <Button href="/online" variant="secondary">💻 Cursos online</Button>
+        <Button href="/cursos#quiz" variant="ghost">🎯 ¿Qué curso necesito?</Button>
+      </div>
+      <div class="hero__trust">
+        <span>✓ Certificados SEPE</span>
+        <span>✓ Bonificable FUNDAE</span>
+        <span>✓ +{statsData.alumniTrained} alumnos</span>
+        <span>✓ Bolsa de empleo</span>
+      </div>
+    </div>
+
+    <div class="hero__stat-card">
+      <p class="hero__stat-num">{statsData.alumniTrained}<span>+</span></p>
+      <p class="hero__stat-label">Alumnos formados</p>
+      <div class="hero__stat-sub">
+        <p class="hero__stars">★★★★★</p>
+        <p>{statsData.averageRating} · {statsData.employerPartners}+ empresas colaboradoras</p>
+        <p>{statsData.employmentRate}% tasa de inserción laboral</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero { background: var(--color-canvas); padding: var(--space-2xl) 0; }
+  .hero__inner { display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--space-2xl); align-items: center; }
+
+  .hero__h1 { margin: 0.5rem 0 var(--space-md); }
+  .hero__h1 span { color: var(--color-amber); }
+  .hero__sub { font-size: 1.05rem; max-width: 480px; margin-bottom: var(--space-lg); }
+
+  .hero__ctas { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: var(--space-lg); }
+  .hero__trust { display: flex; gap: var(--space-md); flex-wrap: wrap; font-size: var(--fs-small); color: var(--color-text-secondary); }
+
+  .hero__stat-card { background: #fff; border: 0.5px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-lg); box-shadow: var(--shadow-md); }
+  .hero__stat-num { font-size: 2.5rem; font-weight: 700; color: var(--color-navy); margin: 0; line-height: 1; }
+  .hero__stat-num span { color: var(--color-amber); }
+  .hero__stat-label { color: var(--color-text-tertiary); font-size: var(--fs-small); margin: 0.2rem 0 0.8rem; }
+  .hero__stat-sub { border-top: 0.5px solid var(--color-border); padding-top: 0.6rem; font-size: var(--fs-small); }
+  .hero__stars { color: #F59E0B; margin: 0 0 0.3rem; }
+  .hero__stat-sub p { margin: 0.15rem 0; }
+
+  @media (max-width: 900px) {
+    .hero__inner { grid-template-columns: 1fr; }
+  }
+</style>

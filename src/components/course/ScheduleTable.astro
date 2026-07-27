@@ -1,0 +1,81 @@
+---
+import { formatDateLong } from '../../utils/format-date';
+import { getSeatsStatus, getSeatsStatusLabel, getSeatsRemaining } from '../../utils/seats-status';
+
+interface Session { date: Date; seatsTotal: number; seatsTaken: number; location?: string }
+interface Props { sessions: Session[] }
+const { sessions } = Astro.props;
+---
+
+<section class="schedule">
+  <h2>Próximas convocatorias</h2>
+  {sessions.length === 0 ? (
+    <div class="schedule__empty">
+      <p>No hay convocatorias programadas en este momento.</p>
+      <a href="#notificar" class="schedule__notify">Avisarme de la próxima convocatoria →</a>
+    </div>
+  ) : (
+    <div class="schedule__table">
+      {sessions.map((session) => {
+        const status = getSeatsStatus(session);
+        const remaining = getSeatsRemaining(session);
+        return (
+          <div class="schedule__row" data-status={status}>
+            <div>
+              <p class="schedule__date">{formatDateLong(session.date)}</p>
+              {session.location && <p class="schedule__location">{session.location}</p>}
+            </div>
+            <div class="schedule__status">{getSeatsStatusLabel(status, remaining)}</div>
+            <a href="#matricula" class="schedule__cta">
+              {status === 'completo' ? 'Lista de espera' : 'Reservar →'}
+            </a>
+          </div>
+        );
+      })}
+    </div>
+  )}
+</section>
+
+<style>
+  .schedule { padding: var(--space-2xl) 0; }
+  .schedule__table { border: 0.5px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; }
+  .schedule__row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 0.5px solid var(--color-border);
+  }
+  .schedule__row:last-child { border-bottom: none; }
+  .schedule__date { font-weight: 500; margin: 0; }
+  .schedule__location { font-size: var(--fs-tiny); color: var(--color-text-tertiary); margin: 0; }
+
+  .schedule__status { font-size: var(--fs-small); font-weight: 500; white-space: nowrap; }
+  .schedule__row[data-status='pocas-plazas'] .schedule__status { color: var(--color-amber); }
+  .schedule__row[data-status='disponible'] .schedule__status { color: var(--color-success); }
+  .schedule__row[data-status='completo'] .schedule__status { color: var(--color-text-tertiary); }
+
+  .schedule__cta {
+    background: var(--color-navy);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .schedule__cta:hover { text-decoration: none; background: var(--color-navy-light); }
+
+  .schedule__empty {
+    background: var(--color-canvas);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    text-align: center;
+  }
+  .schedule__notify { display: inline-block; margin-top: 0.5rem; font-weight: 500; }
+
+  @media (max-width: 640px) {
+    .schedule__row { grid-template-columns: 1fr; gap: 0.5rem; text-align: left; }
+  }
+</style>
